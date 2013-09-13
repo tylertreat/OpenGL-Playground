@@ -12,6 +12,7 @@ using namespace std;
 
 #define PI 3.14159f
 
+const int SCREEN_SIZE = 512;
 const int CIRCLE_SEGMENTS = 48;
 const GLfloat LEFT_X = -0.75;
 const GLfloat RIGHT_X = 0.0;
@@ -42,16 +43,30 @@ vec2* getCircleVertices(float cx, float cy, float r, int segments)
 // Indicates if the coordinates are in the bounds of the square.
 bool isInBounds(float x, float y)
 {
-	if (x < LEFT_X + 0.5f || x > RIGHT_X + 0.5f)
+	if (x < LEFT_X || x > RIGHT_X)
 	{
 		return false;
 	}
-	if (y < BOTTOM_Y + 0.5 || y > TOP_Y + 0.5f)
+	if (y < BOTTOM_Y || y > TOP_Y)
 	{
 		return false;
 	}
 
 	return true;
+}
+
+
+// Convert the screen x-coordinate to the OpenGL coordinate.
+float translateX(int x)
+{
+	return (float) (2 * x) / SCREEN_SIZE - 1;
+}
+
+
+// Convert the screen y-coordinate to the OpenGL coordinate.
+float translateY(int y)
+{
+	return (float) (-2 * y) / SCREEN_SIZE + 1;
 }
 
 
@@ -187,8 +202,8 @@ void
 
 void mouse( int button, int state, int x, int y )
 {
-	float scaled_x = (float) x / 512;
-	float scaled_y = (float) y / 512;
+	float scaled_x = translateX(x);
+	float scaled_y = translateY(y);
   if ( state == GLUT_DOWN )
   {
     switch( button )
@@ -212,7 +227,7 @@ int main( int argc, char **argv )
 {
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_RGBA);
-  glutInitWindowSize(512, 512);
+  glutInitWindowSize(SCREEN_SIZE, SCREEN_SIZE);
   glutCreateWindow("Color Chooser");
 
   // This line must come after creating the OpenGL context (glutCreateWindow)
