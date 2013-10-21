@@ -27,6 +27,10 @@
 Shader * shader;
 VertexArray * cubeVao;
 VertexArray * axesVao;
+VertexArray * lineVao;
+
+GLfloat phi;     // head/yaw
+GLfloat theta;   // pitch
 
 // current view point
 vec3 viewPoint(0.0, 0.0, 3.0);
@@ -36,6 +40,9 @@ GLfloat degrees = 0.0;
 
 // degree change in each frame
 GLfloat increment = 0.5;
+
+// View volume size
+GLfloat size = 1.0;
 
 // elapsed time
 int elapsedTime;
@@ -70,9 +77,18 @@ void init()
     vec4(0.0, 0.0, 0.0, 1.0), vec4(0.0, 0.0, 0.0, 1.0), 
     vec4(0.0, 0.0, 0.0, 1.0), vec4(0.0, 0.0, 0.0, 1.0) };
 
+  // Magenta line
+  vec3 line[2] = { vec3(0.0, -1.0, 0.0), vec3(0.0, 1.0, 0.0) };
+  vec4 lineColor[2] = { vec4(1.0, 0.0, 1.0, 1.0), vec4(1.0, 0.0, 1.0, 1.0) };
+
   axesVao = new VertexArray();
   axesVao->AddAttribute("vPosition", axes, 6);
   axesVao->AddAttribute("vColor", colorsForAxes, 6);
+
+  lineVao = new VertexArray();
+  lineVao->AddAttribute("vPosition", line, 2);
+  lineVao->AddAttribute("vColor", lineColor, 2);
+
 
   glEnable( GL_DEPTH_TEST );
   glClearColor( 1.0, 1.0, 1.0, 1.0 ); 
@@ -89,17 +105,11 @@ void display( void )
   while (degrees >= 360.0) degrees -= 360.0;
   while (degrees <= -360.0) degrees += 360.0;
 
-  mat4 model = RotateY(degrees);
+  mat4 model = RotateX(theta) * Translate(0.0, 1.0, 0.0) * RotateY(degrees) * Translate(0.0, -1.0, 0.0);
   
   mat4 view = LookAt(viewPoint, vec3(0.0, 0.0, 0.0), vec4(0.0, 1.0, 0.0, 0.0));
 
-  // distance from view point to origin
-  GLfloat r = length(viewPoint);
-
-  // Translate everything by r and then flip the z-axis
-  // to move everything into the default view volume
-  // (see ortho.cpp for some alternative projection matrices...)
-  mat4 projection = Scale(1, 1, -1) * Translate(0, 0, r);
+  mat4 projection = Ortho(-size, size, -size, size, -size, size);
 
   // bind shader
   shader->Bind();
@@ -109,6 +119,12 @@ void display( void )
   cubeVao->Bind(*shader);
   cubeVao->Draw(GL_TRIANGLES);
   cubeVao->Unbind();
+
+  // draw magenta line with MVP transformation
+  shader->SetUniform("transform", projection * view * model);
+  lineVao->Bind(*shader);
+  lineVao->Draw(GL_LINES);
+  lineVao->Unbind();
 
   // draw fixed axes *without* model transformation
   shader->SetUniform("transform", projection * view);
@@ -139,6 +155,13 @@ void keyboard( unsigned char key, int x, int y )
     increment -= 0.1;
     break;
 
+  // Zoom
+  case 'V':
+	size -= 0.1;
+	break;
+  case 'v':
+	size += 0.1;
+	break;
   }
 }
 
@@ -147,18 +170,20 @@ void keyboardSpecial(int key, int x, int y)
 {
   switch( key ) {
   case GLUT_KEY_UP:
-    viewPoint[1] += 1;
+    theta += 5;
     break;
   case GLUT_KEY_DOWN:
-    viewPoint[1] -= 1;
+    theta -= 5;
     break;
   case GLUT_KEY_RIGHT:
-    viewPoint[0] += 1;
+    phi += 5;
     break;
   case GLUT_KEY_LEFT:
-    viewPoint[0] -= 1;
+    phi -= 5;
     break;
   }
+  glutPostRedisplay();
+  
 }
 
 void idle( void )
