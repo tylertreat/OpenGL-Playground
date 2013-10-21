@@ -23,6 +23,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "transformation2d", "transfo
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "euler_angles", "euler_angles\euler_angles.vcxproj", "{0B978248-050C-4DAA-BD0F-F0823684D4ED}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "simple_spinning_cube", "simple_spinning_cube\simple_spinning_cube.vcxproj", "{E6AE4A06-307B-4A29-96C2-7B49223B06C2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -113,6 +115,12 @@ Global
 		{0B978248-050C-4DAA-BD0F-F0823684D4ED}.Release|Win32.ActiveCfg = Release|Win32
 		{0B978248-050C-4DAA-BD0F-F0823684D4ED}.Release|Win32.Build.0 = Release|Win32
 		{0B978248-050C-4DAA-BD0F-F0823684D4ED}.Release|x64.ActiveCfg = Release|Win32
+		{E6AE4A06-307B-4A29-96C2-7B49223B06C2}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E6AE4A06-307B-4A29-96C2-7B49223B06C2}.Debug|Win32.Build.0 = Debug|Win32
+		{E6AE4A06-307B-4A29-96C2-7B49223B06C2}.Debug|x64.ActiveCfg = Debug|Win32
+		{E6AE4A06-307B-4A29-96C2-7B49223B06C2}.Release|Win32.ActiveCfg = Release|Win32
+		{E6AE4A06-307B-4A29-96C2-7B49223B06C2}.Release|Win32.Build.0 = Release|Win32
+		{E6AE4A06-307B-4A29-96C2-7B49223B06C2}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
