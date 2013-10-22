@@ -24,6 +24,8 @@
 #include <Shader.h>
 #include <VertexArray.h>
 
+const float PI = atanf(1.0) * 4;
+
 Shader * shader;
 VertexArray * cubeVao;
 VertexArray * axesVao;
@@ -35,14 +37,8 @@ GLfloat theta;   // pitch
 // current view point
 vec3 viewPoint(2.0, 1.0, 2.0);
 
-// current amount of rotation
-GLfloat degrees = 0.0;
-
 // rotate angle
-GLfloat rotateAlpha = 0.0;
-
-// orbit angle in the X-Z plane
-GLfloat orbitAlpha = 0.0;
+GLfloat alpha;
 
 // degree change in each frame
 GLfloat increment = 0.5;
@@ -59,7 +55,34 @@ const int frameRate = 1000.0 / 60;
 
 mat4 RotateAxis(float degrees, float phi, float theta)
 {
-	return RotateX(theta) * Translate(0.0, 1.0, 0.0) * RotateY(degrees) * Translate(0.0, -1.0, 0.0);
+	return RotateY(degrees) * RotateY(phi) * RotateX(theta);
+}
+
+mat4 RotateAxis(float degrees, vec3 direction)
+{
+	if (direction.x == 0 && direction.z == 0)
+	{
+		return NULL;
+	}
+
+	// Calculate phi
+	float phi = atan2(direction.x, direction.z);
+	if (phi < 0)
+	{
+		phi += PI;
+	}
+
+	// Convert to degrees
+	phi = phi * (180 / PI);
+
+	// Calculate theta
+	float r = length(direction);
+	float theta = acos(direction.y / r);
+
+	// Convert to degrees
+	theta = theta * (180 / PI);
+
+	return RotateAxis(degrees, phi, theta);
 }
 
 
@@ -112,19 +135,19 @@ void display( void )
   glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
   // increase the rotation angle
-  rotateAlpha += increment;
+  alpha += increment;
 
   // rotation around magenta line
-  mat4 rotate = RotateY(rotateAlpha) * RotateY(phi) * RotateX(theta) * RotateZ(degrees);
+  mat4 rotate = RotateAxis(alpha, phi, theta);
 
   // orbit in X-Z plane
-  mat4 orbit = RotateY(rotateAlpha / 10.0) * Translate(3.0, 0.0, 0.0);
+  mat4 orbit = RotateY(alpha / 10.0) * Translate(3.0, 0.0, 0.0);
 
   // earth
   mat4 earth = orbit * rotate;
 
   // moon orbiting around earth
-  mat4 moon = orbit * rotate * RotateY(rotateAlpha) * Translate(2.0, 0.0, 0.0) * Scale(0.2, 0.2, 0.2);
+  mat4 moon = orbit * rotate * RotateY(alpha) * Translate(2.0, 0.0, 0.0) * Scale(0.2, 0.2, 0.2);
   
   mat4 view = LookAt(viewPoint, vec3(0.0, 0.0, 0.0), vec4(0.0, 1.0, 0.0, 0.0));
 
