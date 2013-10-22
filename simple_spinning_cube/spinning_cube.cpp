@@ -33,10 +33,16 @@ GLfloat phi;     // head/yaw
 GLfloat theta;   // pitch
 
 // current view point
-vec3 viewPoint(0.0, 0.0, 3.0);
+vec3 viewPoint(2.0, 1.0, 2.0);
 
 // current amount of rotation
 GLfloat degrees = 0.0;
+
+// rotate angle
+GLfloat rotateAlpha = 0.0;
+
+// orbit angle in the X-Z plane
+GLfloat orbitAlpha = 0.0;
 
 // degree change in each frame
 GLfloat increment = 0.5;
@@ -50,6 +56,11 @@ int elapsedTime;
 // frame rate in millis for 30 frames/sec
 const int frameRate = 1000.0 / 60;
 
+
+mat4 RotateAxis(float degrees, float phi, float theta)
+{
+	return RotateX(theta) * Translate(0.0, 1.0, 0.0) * RotateY(degrees) * Translate(0.0, -1.0, 0.0);
+}
 
 
 void init()
@@ -101,11 +112,19 @@ void display( void )
   glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
   // increase the rotation angle
-  degrees += increment;
-  while (degrees >= 360.0) degrees -= 360.0;
-  while (degrees <= -360.0) degrees += 360.0;
+  rotateAlpha += increment;
 
-  mat4 model = RotateX(theta) * Translate(0.0, 1.0, 0.0) * RotateY(degrees) * Translate(0.0, -1.0, 0.0);
+  // rotation around magenta line
+  mat4 rotate = RotateY(rotateAlpha) * RotateY(phi) * RotateX(theta) * RotateZ(degrees);
+
+  // orbit in X-Z plane
+  mat4 orbit = RotateY(rotateAlpha / 10.0) * Translate(3.0, 0.0, 0.0);
+
+  // earth
+  mat4 earth = orbit * rotate;
+
+  // moon orbiting around earth
+  mat4 moon = orbit * rotate * RotateY(rotateAlpha) * Translate(2.0, 0.0, 0.0) * Scale(0.2, 0.2, 0.2);
   
   mat4 view = LookAt(viewPoint, vec3(0.0, 0.0, 0.0), vec4(0.0, 1.0, 0.0, 0.0));
 
@@ -115,16 +134,21 @@ void display( void )
   shader->Bind();
 
   // draw cube with MVP transformation
-  shader->SetUniform("transform", projection * view * model);
+  shader->SetUniform("transform", projection * view * earth);
   cubeVao->Bind(*shader);
   cubeVao->Draw(GL_TRIANGLES);
   cubeVao->Unbind();
 
-  // draw magenta line with MVP transformation
-  shader->SetUniform("transform", projection * view * model);
+  // draw magenta line in same context as cube
   lineVao->Bind(*shader);
   lineVao->Draw(GL_LINES);
   lineVao->Unbind();
+
+  // draw small cube with MVP transformation
+  shader->SetUniform("transform", projection * view * moon);
+  cubeVao->Bind(*shader);
+  cubeVao->Draw(GL_TRIANGLES);
+  cubeVao->Unbind();
 
   // draw fixed axes *without* model transformation
   shader->SetUniform("transform", projection * view);
