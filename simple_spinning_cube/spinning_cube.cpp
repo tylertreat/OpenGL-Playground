@@ -53,6 +53,15 @@ int elapsedTime;
 const int frameRate = 1000.0 / 60;
 
 
+mat4 PerspectiveUsingFrustum(float fovy, float aspect, float zNear, float zFar)
+{
+	float top = tan(fovy * PI / 360.0) * zNear;
+    float bottom = -top;
+    float left = bottom * aspect;
+    float right = top * aspect;
+    return Frustum(left, right, bottom, top, zNear, zFar);
+}
+
 mat4 RotateAxis(float degrees, float phi, float theta)
 {
 	return RotateY(degrees) * RotateY(phi) * RotateX(theta);
