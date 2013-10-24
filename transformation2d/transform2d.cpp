@@ -9,8 +9,8 @@
 #include <Angel.h>
 
 const float PI = atanf(1.0) * 4;
-const float SLOPE = 2;
-const float INTERCEPT = 0.5;
+const float SLOPE = 0;
+const float INTERCEPT = 0.0;
 
 GLuint vao;
 GLuint program;
