@@ -262,7 +262,7 @@ void Camera::LookUp(float degrees)
     forward = ApplyTransform(transform, forward);
 
 	// recalculate up vector
-    up      = normalize(cross(right, forward));
+    up = normalize(cross(right, forward));
 }
 
 /*
@@ -278,7 +278,7 @@ void Camera::MoveForward(float amount)
  */
 void Camera::MoveRight(float amount)
 {
- 
+	position += amount * right;
 }
 
 /*
@@ -286,7 +286,7 @@ void Camera::MoveRight(float amount)
  */
 void Camera::MoveUp(float amount)
 {
-
+	position += amount * up;
 }
 
 /*
@@ -294,7 +294,13 @@ void Camera::MoveUp(float amount)
  */
 void Camera::LookRight(float degrees)
 {
+	// Look right by rotating around the up vector, which is assumed to be
+    // orthogonal to the right vector
+	mat4 transform = RotateAxis(up, degrees);
+    forward = ApplyTransform(transform, forward);
 
+	// recalculate right vector
+	right = normalize(cross(up, forward));
 }
 
 /*
@@ -302,7 +308,12 @@ void Camera::LookRight(float degrees)
  */
 void Camera::PitchUp(float degrees)
 {
+	// Pitch up by rotating about the right vector.
+	mat4 transform = RotateAxis(right, degrees);
+	forward = ApplyTransform(transform, forward);
 
+	// recalculate up vector
+    up = normalize(cross(right, forward));
 }
 
 /*
@@ -310,7 +321,12 @@ void Camera::PitchUp(float degrees)
  */
 void Camera::HeadRight(float degrees)
 {
+	// Yaw right by rotating around the up vector.
+	mat4 transform = RotateAxis(up, degrees);
+	forward = ApplyTransform(transform, forward);
 
+	// recalculate right vector
+	right = normalize(cross(up, forward));
 }
 
 /*
@@ -318,7 +334,12 @@ void Camera::HeadRight(float degrees)
  */
 void Camera::RollCCW(float degrees)
 {
+	// Rotate CCW by rotating around the forward vector.
+	mat4 transform = RotateAxis(forward, degrees);
+	right = ApplyTransform(transform, right);
 
+	// recalculate up vector
+	up = normalize(cross(right, forward));
 }
 
 /*
@@ -336,7 +357,9 @@ void Camera::OrbitUp(float length, float degrees)
  */
 void Camera::OrbitRight(float length, float degrees)
 {
-
+	MoveForward(length);
+	HeadLeft(degrees);
+	MoveBackward(length);
 }
 
 /**
@@ -344,8 +367,9 @@ void Camera::OrbitRight(float length, float degrees)
  */
 const mat4& Camera::GetView() const
 {
-  // TODO
-  return 0;
+    vec4 t = vec4(0.0, 0.0, 0.0, 1.0);
+    mat4 c = mat4(right, up, forward, t);
+    return c * Translate(-position);
 }
 
 
