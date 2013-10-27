@@ -29,6 +29,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wireframe_indices", "wirefr
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ortho_with_camera", "ortho_with_camera\ortho_with_camera.vcxproj", "{CBA5A210-2A08-4401-B5DC-181ACF1E0F63}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "phong_shading", "phong_shading\phong_shading.vcxproj", "{462847E3-34FE-4FEC-BF08-85794A751279}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -137,6 +139,12 @@ Global
 		{CBA5A210-2A08-4401-B5DC-181ACF1E0F63}.Release|Win32.ActiveCfg = Release|Win32
 		{CBA5A210-2A08-4401-B5DC-181ACF1E0F63}.Release|Win32.Build.0 = Release|Win32
 		{CBA5A210-2A08-4401-B5DC-181ACF1E0F63}.Release|x64.ActiveCfg = Release|Win32
+		{462847E3-34FE-4FEC-BF08-85794A751279}.Debug|Win32.ActiveCfg = Debug|Win32
+		{462847E3-34FE-4FEC-BF08-85794A751279}.Debug|Win32.Build.0 = Debug|Win32
+		{462847E3-34FE-4FEC-BF08-85794A751279}.Debug|x64.ActiveCfg = Debug|Win32
+		{462847E3-34FE-4FEC-BF08-85794A751279}.Release|Win32.ActiveCfg = Release|Win32
+		{462847E3-34FE-4FEC-BF08-85794A751279}.Release|Win32.Build.0 = Release|Win32
+		{462847E3-34FE-4FEC-BF08-85794A751279}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
