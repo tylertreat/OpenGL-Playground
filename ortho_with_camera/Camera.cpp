@@ -335,7 +335,7 @@ void Camera::HeadRight(float degrees)
 void Camera::RollCCW(float degrees)
 {
 	// Rotate CCW by rotating around the forward vector.
-	mat4 transform = RotateAxis(forward, degrees);
+	mat4 transform = RotateAxis(forward, -degrees);
 	right = ApplyTransform(transform, right);
 
 	// recalculate up vector
@@ -368,8 +368,8 @@ void Camera::OrbitRight(float length, float degrees)
 const mat4& Camera::GetView() const
 {
     vec4 t = vec4(0.0, 0.0, 0.0, 1.0);
-    mat4 c = mat4(right, up, forward, t);
-    return c * Translate(-position);
+    view = mat4(right, up, -forward, t) * Translate(-position);
+    return view;
 }
 
 

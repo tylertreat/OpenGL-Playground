@@ -445,6 +445,7 @@ private:
     vec3 forward;      //!< Unit vector in the direction the camera is facing
     vec3 right;        //!< Unit vector in the direction of the camera's right
     vec3 up;           //!< Unit vector in the direction of the camera's up
+	mutable mat4 view; //!< Camera view matrix
 
 
 	// Some utility methods...
