@@ -97,6 +97,62 @@ public:
         return indices; 
     }
 
+	/**
+     * \brief Gets the array of wireframe indices in the model for indexed rendering
+     *
+     * \return The array of wireframe indices in the model
+     * \return Null if the obj file was not read successfully
+     */
+	inline const unsigned int* GetWireframeIndices() const
+	{
+		int size = GetNumWireframeIndices();
+		unsigned int* wireframeIndices = new unsigned int[size];
+
+		const unsigned int* indices = GetIndices();
+		if (indices == NULL)
+		{
+			return NULL;
+		}
+
+		int count = 0;
+		int previous = -1;
+		for (int i = 0; i < GetNumIndices(); i++)
+		{
+			int index = indices[i];
+			if (index == previous)
+			{
+				continue;
+			}
+			wireframeIndices[count++] = index;
+			previous = index;
+		}
+
+		return wireframeIndices;
+	}
+
+	/**
+     * \brief Gets the number of indices in the wireframe indices array
+     *
+     * \return The number of indices in the wireframe indices array
+     */
+	inline int GetNumWireframeIndices() const
+	{
+		const unsigned int* indices = GetIndices();
+		int count = 0;
+		int previous = -1;
+		for (int i = 0; i < GetNumIndices(); i++)
+		{
+			int index = indices[i];
+			if (index == previous)
+			{
+				continue;
+			}
+			count++;
+			previous = index;
+		}
+		return count;
+	}
+
     /**
      * \brief Gets the number of vertices in the model
      *

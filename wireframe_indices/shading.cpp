@@ -97,14 +97,14 @@ void init()
 
 
   // Choose a model... 
-  ObjFile m("../models/cube_tex.obj"); 
-  //ObjFile m("../models/teapot.obj"); currentOrientation = Scale(m.GetScaleFactor());
+  //ObjFile m("../models/cube_tex.obj"); 
+  ObjFile m("../models/teapot.obj"); currentOrientation = Scale(m.GetScaleFactor());
   //ObjFile m("../models/bunny.obj"); currentOrientation = Scale(m.GetScaleFactor());
 
   cubeVao = new VertexArray();
   cubeVao->AddAttribute("vPosition", m.GetVertices(), m.GetNumVertices());
   cubeVao->AddAttribute("vNormal", m.GetNormals(), m.GetNumVertices());
-  cubeVao->AddIndices(m.GetIndices(), m.GetNumIndices());
+  cubeVao->AddIndices(m.GetWireframeIndices(), m.GetNumWireframeIndices());
 
   // nonmoving set of axes
   vec3 axes[6] = {
@@ -187,7 +187,7 @@ void display( void )
 
   // draw cube 
   cubeVao->Bind(*lightShader);
-  cubeVao->Draw(GL_TRIANGLES);
+  cubeVao->Draw(GL_LINES);
   cubeVao->Unbind();
   lightShader->Unbind();
 
