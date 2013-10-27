@@ -44,6 +44,9 @@
     <None Include="vshader_phong.glsl">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="fshader_phong_spotlight.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\cube.h">

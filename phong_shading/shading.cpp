@@ -101,12 +101,15 @@ mat3 light = mat3(
   vec3(1.0, 1.0, 1.0),
   vec3(1.0, 1.0, 1.0));
 
+vec4 lightPosition = vec4(0.0, 2.0, 0.0, 1.0);
+
 void init()
 {  
 
   solidColorShader  = new Shader("vshader.glsl", "fshader.glsl");
   //lightShader  = new Shader("vshader_gouraud.glsl", "fshader_gouraud.glsl");
-  lightShader  = new Shader("vshader_phong.glsl", "fshader_phong.glsl");
+  //lightShader  = new Shader("vshader_phong.glsl", "fshader_phong.glsl");
+  lightShader  = new Shader("vshader_phong.glsl", "fshader_phong_spotlight.glsl");
 
   // Choose a model...
   //Cube m;
@@ -189,11 +192,11 @@ void display( void )
   lightShader->SetUniform("view", view);
   lightShader->SetUniform("projection", projection);
   lightShader->SetUniform("normalMatrix", normalMatrix);
-  lightShader->SetUniform("lightPosition", vec4(0.0, 2.0, 0.0, 1.0));
+  lightShader->SetUniform("D", view * vec3(0.0, -1.0, 0.0));
+  lightShader->SetUniform("lightPosition", lightPosition);
   lightShader->SetUniform("materialProperties", material);
   lightShader->SetUniform("lightProperties", light);
-  lightShader->SetUniform("shininess", shininess);
-  lightShader->SetUniform("useHalfVector", useHalfVector);
+  lightShader->SetUniform("s", shininess);
 
   // draw cube 
   cubeVao->Bind(*lightShader);
@@ -263,7 +266,18 @@ void keyboard( unsigned char key, int x, int y )
     useHalfVector = 1 - useHalfVector;
     std::cout << (useHalfVector ? "" : "not ") << "using half vector" << std::endl;
     break;
-
+  case 'w':
+	lightPosition = vec4(lightPosition.x, lightPosition.y + 0.2, lightPosition.z, lightPosition.w);
+	break;
+  case 's':
+	lightPosition = vec4(lightPosition.x, lightPosition.y - 0.2, lightPosition.z, lightPosition.w);
+	break;
+  case 'a':
+	lightPosition = vec4(lightPosition.x - 0.2, lightPosition.y, lightPosition.z, lightPosition.w);
+	break;
+  case 'd':
+	lightPosition = vec4(lightPosition.x + 0.2, lightPosition.y, lightPosition.z, lightPosition.w);
+	break;
   }
 }
 

@@ -73,6 +73,7 @@
     <None Include="fshader.glsl" />
     <None Include="fshader_gouraud.glsl" />
     <None Include="fshader_phong.glsl" />
+    <None Include="fshader_phong_spotlight.glsl" />
     <None Include="vshader.glsl" />
     <None Include="vshader_gouraud.glsl" />
     <None Include="vshader_phong.glsl" />
