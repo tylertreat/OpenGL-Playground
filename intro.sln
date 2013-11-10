@@ -31,6 +31,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ortho_with_camera", "ortho_
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "phong_shading", "phong_shading\phong_shading.vcxproj", "{462847E3-34FE-4FEC-BF08-85794A751279}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "scene", "scene\scene.vcxproj", "{795B5190-FB1C-4C57-B7A5-09B45A3A3549}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "skybox", "skybox\skybox.vcxproj", "{4A31F86D-709E-4155-8F80-1826B357E1FD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -145,6 +149,18 @@ Global
 		{462847E3-34FE-4FEC-BF08-85794A751279}.Release|Win32.ActiveCfg = Release|Win32
 		{462847E3-34FE-4FEC-BF08-85794A751279}.Release|Win32.Build.0 = Release|Win32
 		{462847E3-34FE-4FEC-BF08-85794A751279}.Release|x64.ActiveCfg = Release|Win32
+		{795B5190-FB1C-4C57-B7A5-09B45A3A3549}.Debug|Win32.ActiveCfg = Debug|Win32
+		{795B5190-FB1C-4C57-B7A5-09B45A3A3549}.Debug|Win32.Build.0 = Debug|Win32
+		{795B5190-FB1C-4C57-B7A5-09B45A3A3549}.Debug|x64.ActiveCfg = Debug|Win32
+		{795B5190-FB1C-4C57-B7A5-09B45A3A3549}.Release|Win32.ActiveCfg = Release|Win32
+		{795B5190-FB1C-4C57-B7A5-09B45A3A3549}.Release|Win32.Build.0 = Release|Win32
+		{795B5190-FB1C-4C57-B7A5-09B45A3A3549}.Release|x64.ActiveCfg = Release|Win32
+		{4A31F86D-709E-4155-8F80-1826B357E1FD}.Debug|Win32.ActiveCfg = Debug|Win32
+		{4A31F86D-709E-4155-8F80-1826B357E1FD}.Debug|Win32.Build.0 = Debug|Win32
+		{4A31F86D-709E-4155-8F80-1826B357E1FD}.Debug|x64.ActiveCfg = Debug|Win32
+		{4A31F86D-709E-4155-8F80-1826B357E1FD}.Release|Win32.ActiveCfg = Release|Win32
+		{4A31F86D-709E-4155-8F80-1826B357E1FD}.Release|Win32.Build.0 = Release|Win32
+		{4A31F86D-709E-4155-8F80-1826B357E1FD}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

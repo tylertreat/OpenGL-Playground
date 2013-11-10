@@ -10,14 +10,18 @@ class Sphere
   int numVertices;
   int Index;
   bool trueNormals;
+  bool useStereographic;
+  int repeat;
 
 public:
-  // nn is number of vertices between equator and pole
-  // (quarter of a great circle)
-  Sphere(int nn = 4, bool useTrueNormals = false)
+
+  Sphere(int nn = 4, bool useTrueNormals = false, bool stereographic = false)
   {
     // 4n x 2n quads, each quad is 6 vertices
     trueNormals = useTrueNormals;
+    useStereographic = stereographic;
+    //repeat = 1;
+    repeat = 4;  // no effect for stereographic
     numVertices = 48 * nn * nn;
     vertices = new vec3[numVertices];
     normals = new vec3[numVertices];
@@ -60,7 +64,7 @@ public:
     delete[] texCoords;
   }
 
-  // convert spherical to rectangular
+  // convert to rectangular
   vec3 convert(GLfloat theta, GLfloat phi)
   {
     return vec3(sin(phi) * cos(theta),
@@ -68,11 +72,25 @@ public:
                 cos(phi));
   }
 
+  // for point p at azimuth angle theta, return the point on the stereographic projection
+  vec2 stereographic(GLfloat theta, vec3 p)
+  {
+    //  (0, 0, -1) + alpha * (p[0], p[1], p[2] + 1) = (x, y, 1)
+    GLfloat alpha = 2.0 / (p[2] + 1);
+    GLfloat x = alpha * p[0];
+    GLfloat y = alpha * p[1];
+
+    // result is in the range [-2, 2], so scale by .25 and add .5
+    GLfloat s = x * 0.25 + 0.5;
+    GLfloat t = y * 0.25 + 0.5;
+    return vec2(s, t);
+  }
+
   // for point p at azimuth angle theta, return the point on the cylindrical projection
   vec2 cylindrical(GLfloat theta, vec3 p)
   {
     //GLfloat s = theta / (2 * M_PI);
-    GLfloat s = theta / (2 * M_PI) * 4;  // map texture to quarter of circumference
+    GLfloat s = theta / (2 * M_PI) * repeat;  // map texture to 1/repeat of circumference
     //GLfloat t = p[2];
     GLfloat t = p[2] / 2.0 + 0.5; // upper hemisphere to upper half of texture
     return vec2(s, t);
@@ -118,14 +136,22 @@ public:
       tangents[i + half] = tangents[i];  // directly south, so tangent is the same direction
       vec2 tex = texCoords[i];
       //texCoords[i + half] = vec2(tex[0], tex[1] - 0.5);
-      texCoords[i + half] = vec2(tex[0], 1.0 - tex[1]);
+      if (useStereographic)
+      {
+        texCoords[i + half] = texCoords[i];
+      }
+      else
+      {
+        texCoords[i + half] = vec2(tex[0], 1.0 - tex[1]);
+      }
     }
   }
 
-  // create two triangles making a quad between the given azimuth and 
-  // polar angles
   void quad(GLfloat theta, GLfloat theta2, GLfloat phi, GLfloat phi2)
   {
+    //vec2 (*proj)(GLfloat theta, vec3 p);
+    //proj = cylindrical;
+
     vec3 a = convert(theta, M_PI / 2.0 - phi);
     vec3 b = convert(theta2, M_PI / 2.0 - phi);
     vec3 c = convert(theta2, M_PI / 2.0 - phi2);
@@ -145,33 +171,33 @@ public:
 
     // two triangles
     vertices[Index] = a;
-    texCoords[Index] = cylindrical(theta, a);
+    texCoords[Index] = useStereographic ? stereographic(theta, a) : cylindrical(theta, a);
     normals[Index] = trueNormals ? a : fn;
     tangents[Index] = aTangent;
 
     ++Index;
     vertices[Index] = b;
-    texCoords[Index] = cylindrical(theta2, b);
+    texCoords[Index] = useStereographic ? stereographic(theta2, b) : cylindrical(theta2, b);
     normals[Index] = trueNormals ? b : fn;
     tangents[Index] = bTangent;
     ++Index;
     vertices[Index] = c;
-    texCoords[Index] = cylindrical(theta2, c);
+    texCoords[Index] = useStereographic ? stereographic(theta2, c) : cylindrical(theta2, c);
     normals[Index] = trueNormals ? c : fn;
     tangents[Index] = cTangent;
     ++Index;
     vertices[Index] = a;
-    texCoords[Index] = cylindrical(theta, a);
+    texCoords[Index] = useStereographic ? stereographic(theta, a) : cylindrical(theta, a);
     normals[Index] = trueNormals ? a : fn;
     tangents[Index] = aTangent;
     ++Index;
     vertices[Index] = c;
-    texCoords[Index] = cylindrical(theta2, c);
+    texCoords[Index] = useStereographic ? stereographic(theta2, c) : cylindrical(theta2, c);
     normals[Index] = trueNormals ? c : fn;
     tangents[Index] = cTangent;
     ++Index;
     vertices[Index] = d;
-    texCoords[Index] = cylindrical(theta, d);
+    texCoords[Index] = useStereographic ? stereographic(theta, d) : cylindrical(theta, d);
     normals[Index] = trueNormals ? d: fn;
     tangents[Index] = dTangent;
     ++Index;
