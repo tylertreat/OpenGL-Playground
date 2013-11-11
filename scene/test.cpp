@@ -26,7 +26,16 @@ Shader* lightShader;
 Camera* camera;
 CameraControl* cameraControl;
 TextureCube* skyboxTexture;
-mat4 model;
+GLfloat alpha;
+
+// degree change in each frame
+GLfloat increment = 0.5;
+
+// elapsed time
+int elapsedTime;
+
+// frame rate in millis for 30 frames/sec
+const int frameRate = 1000.0 / 60;
 
 int numVertices;
 
@@ -111,14 +120,21 @@ void init()
 
 //----------------------------------------------------------------------------
 
+mat4 RotateAxis(float degrees, float phi, float theta)
+{
+	return RotateY(degrees) * RotateY(phi) * RotateX(theta);
+}
+
 void drawSkybox()
 {
+	mat4 model;
+
 	// Bind texture to a texture unit
 	skyboxTexture->Bind(1);
 
 	skyboxShader->Bind();
     skyboxShader->SetUniform("textureCube", 0);
-    skyboxShader->SetUniform("model",  model * Scale(20.0, 20.0, 20.0));
+    skyboxShader->SetUniform("model",  Scale(20.0, 20.0, 20.0));
     skyboxShader->SetUniform("view",  camera->GetView());
     skyboxShader->SetUniform("projection", camera->GetProjection());
     skyboxShader->SetUniform("textureCube", skyboxTexture->GetTextureUnit());
@@ -131,7 +147,15 @@ void drawSkybox()
 
 void drawModels()
 {
+	// increase the rotation angle
+    alpha += increment;
+    while (alpha >= 360.0) alpha -= 360.0;
+    while (alpha <= -360.0) alpha += 360.0;
+	std::cout << alpha << std::endl;
+
 	mat4 view = camera->GetView();
+
+	mat4 model = RotateAxis(alpha, 0.0, 0.0) * Scale(0.1, 0.1, 0.1) * Translate(0.0, -1.0, 0.0);
 
 	// We need to transform the normal vectors into eye space along with the cube.  
     // Since we aren't doing any shearing or nonuniform scaling in this case,
@@ -144,7 +168,7 @@ void drawModels()
                              vec3(mv[2][0], mv[2][1], mv[2][2]));
 
 	lightShader->Bind();
-    lightShader->SetUniform("model",  model * Scale(0.1, 0.1, 0.1) * Translate(0.0, -1.0, 0.0));
+    lightShader->SetUniform("model",  model);
     lightShader->SetUniform("view",  view);
     lightShader->SetUniform("projection", camera->GetProjection());
 	lightShader->SetUniform("normalMatrix", normalMatrix);
@@ -190,6 +214,16 @@ void keyboardSpecial(int key, int x, int y)
 
 }
 
+void idle( void )
+{
+  int now = glutGet(GLUT_ELAPSED_TIME);
+  if (now - elapsedTime > frameRate)
+  {
+    elapsedTime = now;
+    glutPostRedisplay();
+  }
+}
+
 int main( int argc, char **argv )
 {
   glutInit( &argc, argv );
@@ -204,6 +238,7 @@ int main( int argc, char **argv )
   glutDisplayFunc(display);
   glutKeyboardFunc(keyboard);
   glutSpecialFunc(keyboardSpecial);
+  glutIdleFunc( idle );
 
   glutMainLoop();
   return 0;
