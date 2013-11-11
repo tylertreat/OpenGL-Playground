@@ -53,5 +53,23 @@
     <None Include="vshader_cube_tex.glsl">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="images\neg_x.tga">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="images\neg_y.tga">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="images\neg_z.tga">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="images\pos_x.tga">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="images\pos_y.tga">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="images\pos_z.tga">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

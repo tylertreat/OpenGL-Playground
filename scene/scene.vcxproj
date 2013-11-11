@@ -77,6 +77,12 @@
   <ItemGroup>
     <None Include="fshader_cube_tex.glsl" />
     <None Include="fshader_phong.glsl" />
+    <None Include="images\neg_x.tga" />
+    <None Include="images\neg_y.tga" />
+    <None Include="images\neg_z.tga" />
+    <None Include="images\pos_x.tga" />
+    <None Include="images\pos_y.tga" />
+    <None Include="images\pos_z.tga" />
     <None Include="vshader_cube_tex.glsl" />
     <None Include="vshader_phong.glsl" />
   </ItemGroup>

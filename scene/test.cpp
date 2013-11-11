@@ -20,7 +20,7 @@
 #include <TextureCube.h>
 
 VertexArray* skyboxVao;
-VertexArray* teapotVao;
+VertexArray* asteroidVao;
 Shader* skyboxShader;
 Shader* lightShader;
 Camera* camera;
@@ -30,15 +30,15 @@ mat4 model;
 
 int numVertices;
 
-vec4 lightPosition = vec4(0.0, 2.0, 1.0, 1.0);
+vec4 lightPosition = vec4(2.0, -1.0, 1.0, 1.0);
 
-// Shiny green plastic?
+// Asteroid material
 mat3 material = mat3(
-  vec3(0.0, 0.3, 0.3),  // blue-green in ambient light
-  vec3(0.0, 0.8, 0.0),  // green surface
+  vec3(0.8, 0.0, 0.0),  // redish in ambient light
+  vec3(0.67, 0.6, 0.4), // brown surface
   vec3(0.8, 0.8, 0.8)); // specular highlights reflect light color
 
-GLfloat shininess = 30.0;
+GLfloat shininess = 10.0;
 
 // White light
 mat3 light = mat3(
@@ -50,17 +50,17 @@ void initTextures()
 {
 	// Constructor sets up cube map with default sampling paramaters
 	skyboxTexture = new TextureCube(
-		"../images/pos_x.tga",
-        "../images/neg_x.tga",
-        "../images/pos_y.tga",
-        "../images/neg_y.tga",
-        "../images/pos_z.tga",
-        "../images/neg_z.tga");
+		"images/pos_x.tga",
+        "images/neg_x.tga",
+        "images/pos_y.tga",
+        "images/neg_y.tga",
+        "images/pos_z.tga",
+        "images/neg_z.tga");
 }
 
 void initCamera()
 {
-	camera = new Camera(vec3(0.0, 0.0, 0.0),   // position
+	camera = new Camera(vec3(0.0, 0.0, 5),   // position
 		vec3(0.0, 0.0, -1.0),  // forward
 		vec3(0.0, 1.0, 0.0),   // up
 		1.0f,                  // aspect
@@ -88,13 +88,12 @@ void initSkybox()
 
 void initModels()
 {
-	// VAO for teapot
-	teapotVao = new VertexArray();
+	// VAO for asteroid
+	asteroidVao = new VertexArray();
 
-	ObjFile m("../models/teapot.obj");
-	teapotVao->AddAttribute("vPosition", m.GetVertices(), m.GetNumVertices());
-	teapotVao->AddAttribute("vNormal", m.GetNormals(), m.GetNumVertices());
-	teapotVao->AddIndices(m.GetIndices(), m.GetNumIndices());
+	Sphere m(6, true);
+	asteroidVao->AddAttribute("vPosition", m.GetVertices(), m.GetNumVertices());
+	asteroidVao->AddAttribute("vNormal", m.GetNormals(), m.GetNumVertices());
 }
 
 void init()
@@ -144,7 +143,7 @@ void drawModels()
                              vec3(mv[2][0], mv[2][1], mv[2][2]));
 
 	lightShader->Bind();
-    lightShader->SetUniform("model",  model * Scale(0.01, 0.01, 0.01) * Translate(0.0, -1.0, 0.0));
+    lightShader->SetUniform("model",  model * Scale(0.2, 0.2, 0.2) * Translate(0.0, -1.0, 0.0));
     lightShader->SetUniform("view",  view);
     lightShader->SetUniform("projection", camera->GetProjection());
 	lightShader->SetUniform("normalMatrix", normalMatrix);
@@ -154,9 +153,9 @@ void drawModels()
 	lightShader->SetUniform("shininess", shininess);
 	lightShader->SetUniform("useHalfVector", false);
 
-    teapotVao->Bind(*lightShader);
-    teapotVao->Draw(GL_TRIANGLES);
-    teapotVao->Unbind();
+    asteroidVao->Bind(*lightShader);
+    asteroidVao->Draw(GL_TRIANGLES);
+    asteroidVao->Unbind();
     lightShader->Unbind();
 }
 
