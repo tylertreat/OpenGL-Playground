@@ -35,6 +35,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "scene", "scene\scene.vcxpro
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "skybox", "skybox\skybox.vcxproj", "{4A31F86D-709E-4155-8F80-1826B357E1FD}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "skybox_with_render_util", "skybox_with_render_util\skybox_with_render_util.vcxproj", "{7E7D9985-115C-446B-881F-EF443B1E42E9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -161,6 +163,12 @@ Global
 		{4A31F86D-709E-4155-8F80-1826B357E1FD}.Release|Win32.ActiveCfg = Release|Win32
 		{4A31F86D-709E-4155-8F80-1826B357E1FD}.Release|Win32.Build.0 = Release|Win32
 		{4A31F86D-709E-4155-8F80-1826B357E1FD}.Release|x64.ActiveCfg = Release|Win32
+		{7E7D9985-115C-446B-881F-EF443B1E42E9}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7E7D9985-115C-446B-881F-EF443B1E42E9}.Debug|Win32.Build.0 = Debug|Win32
+		{7E7D9985-115C-446B-881F-EF443B1E42E9}.Debug|x64.ActiveCfg = Debug|Win32
+		{7E7D9985-115C-446B-881F-EF443B1E42E9}.Release|Win32.ActiveCfg = Release|Win32
+		{7E7D9985-115C-446B-881F-EF443B1E42E9}.Release|Win32.Build.0 = Release|Win32
+		{7E7D9985-115C-446B-881F-EF443B1E42E9}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
