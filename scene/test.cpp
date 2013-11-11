@@ -19,14 +19,32 @@
 #include <ObjFile.h>
 #include <TextureCube.h>
 
-VertexArray * skyboxVao;
-Shader * skyboxShader;
-Camera * camera;
-CameraControl * cameraControl;
-TextureCube * skyboxTexture;
+VertexArray* skyboxVao;
+VertexArray* teapotVao;
+Shader* skyboxShader;
+Shader* lightShader;
+Camera* camera;
+CameraControl* cameraControl;
+TextureCube* skyboxTexture;
 mat4 model;
 
 int numVertices;
+
+vec4 lightPosition = vec4(0.0, 2.0, 1.0, 1.0);
+
+// Shiny green plastic?
+mat3 material = mat3(
+  vec3(0.0, 0.3, 0.3),  // blue-green in ambient light
+  vec3(0.0, 0.8, 0.0),  // green surface
+  vec3(0.8, 0.8, 0.8)); // specular highlights reflect light color
+
+GLfloat shininess = 30.0;
+
+// White light
+mat3 light = mat3(
+  vec3(0.2, 0.2, 0.2),
+  vec3(1.0, 1.0, 1.0),
+  vec3(1.0, 1.0, 1.0));
 
 void initTextures()
 {
@@ -55,6 +73,7 @@ void initCamera()
 void initShaders()
 {
 	skyboxShader = new Shader("vshader_cube_tex.glsl", "fshader_cube_tex.glsl");
+	lightShader  = new Shader("vshader_phong.glsl", "fshader_phong.glsl");
 }
 
 void initSkybox()
@@ -67,12 +86,24 @@ void initSkybox()
     skyboxVao->AddIndices(m.GetIndices(), m.GetNumIndices());
 }
 
+void initModels()
+{
+	// VAO for teapot
+	teapotVao = new VertexArray();
+
+	ObjFile m("../models/teapot.obj");
+	teapotVao->AddAttribute("vPosition", m.GetVertices(), m.GetNumVertices());
+	teapotVao->AddAttribute("vNormal", m.GetNormals(), m.GetNumVertices());
+	teapotVao->AddIndices(m.GetIndices(), m.GetNumIndices());
+}
+
 void init()
 {
 	initTextures();
 	initCamera();
 	initShaders();
 	initSkybox();
+	initModels();
 
 	glEnable( GL_DEPTH_TEST );
     glClearColor( 1.0, 1.0, 1.0, 1.0 ); 
@@ -98,10 +129,42 @@ void drawSkybox()
     skyboxShader->Unbind();
 }
 
+void drawModels()
+{
+	mat4 view = camera->GetView();
+
+	// We need to transform the normal vectors into eye space along with the cube.  
+    // Since we aren't doing any shearing or nonuniform scaling in this case,
+    // we can just use the same model-view as for the cube itself 
+    // (upper-left 3x3 submatrix of the model-view matrix).  This assumes
+    // that the lighting calculation will be done in eye space.
+    mat4 mv = view * model;
+    mat3 normalMatrix = mat3(vec3(mv[0][0], mv[0][1], mv[0][2]),
+		                     vec3(mv[1][0], mv[1][1], mv[1][2]),
+                             vec3(mv[2][0], mv[2][1], mv[2][2]));
+
+	lightShader->Bind();
+    lightShader->SetUniform("model",  model * Scale(0.01, 0.01, 0.01) * Translate(0.0, -1.0, 0.0));
+    lightShader->SetUniform("view",  view);
+    lightShader->SetUniform("projection", camera->GetProjection());
+	lightShader->SetUniform("normalMatrix", normalMatrix);
+	lightShader->SetUniform("lightPosition", lightPosition);
+	lightShader->SetUniform("materialProperties", material);
+	lightShader->SetUniform("lightProperties", light);
+	lightShader->SetUniform("shininess", shininess);
+	lightShader->SetUniform("useHalfVector", false);
+
+    teapotVao->Bind(*lightShader);
+    teapotVao->Draw(GL_TRIANGLES);
+    teapotVao->Unbind();
+    lightShader->Unbind();
+}
+
 void display( void )
 {
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     drawSkybox();
+	drawModels();
     glFlush();
 }
 

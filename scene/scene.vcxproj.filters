@@ -40,4 +40,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="fshader_phong.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="vshader_phong.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="fshader_cube_tex.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="vshader_cube_tex.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
 </Project>
