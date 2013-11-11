@@ -43,9 +43,9 @@ vec4 lightPosition = vec4(-2.0, 1.0, -1.5, 1.0);
 
 // Asteroid material
 mat3 material = mat3(
-  vec3(0.8, 0.0, 0.0),  // redish in ambient light
-  vec3(0.67, 0.6, 0.4), // brown surface
-  vec3(0.8, 0.8, 0.8)); // specular highlights reflect light color
+  vec3(0.8, 0.0, 0.0),     // redish in ambient light
+  vec3(0.67, 0.6, 0.4),    // brown surface
+  vec3(0.25, 0.20, 0.15)); // specular highlights similar to diffuse color
 
 GLfloat shininess = 10.0;
 
@@ -145,17 +145,10 @@ void drawSkybox()
     skyboxShader->Unbind();
 }
 
-void drawModels()
+void drawAsteroid(vec3 position, vec3 scale)
 {
-	// increase the rotation angle
-    alpha += increment;
-    while (alpha >= 360.0) alpha -= 360.0;
-    while (alpha <= -360.0) alpha += 360.0;
-	std::cout << alpha << std::endl;
-
 	mat4 view = camera->GetView();
-
-	mat4 model = RotateAxis(alpha, 0.0, 0.0) * Scale(0.1, 0.1, 0.1) * Translate(0.0, -1.0, 0.0);
+	mat4 model = Scale(scale) * Translate(position) * RotateAxis(alpha, 0.0, 0.0);
 
 	// We need to transform the normal vectors into eye space along with the cube.  
     // Since we aren't doing any shearing or nonuniform scaling in this case,
@@ -182,6 +175,19 @@ void drawModels()
     asteroidVao->Draw(GL_TRIANGLES);
     asteroidVao->Unbind();
     lightShader->Unbind();
+}
+
+void drawModels()
+{
+    // increase the rotation angle
+    alpha += increment;
+    while (alpha >= 360.0) alpha -= 360.0;
+    while (alpha <= -360.0) alpha += 360.0;
+
+	drawAsteroid(vec3(0.0, -1.0, 0.0), vec3(0.1, 0.1, 0.1));
+	drawAsteroid(vec3(-15.5, 10.0, -40.0), vec3(0.05, 0.05, 0.05));
+	drawAsteroid(vec3(50.0, -12.5, 11.0), vec3(0.03, 0.05, 0.03));
+	drawAsteroid(vec3(-5.5, 9.0, 7.5), vec3(0.15, 0.15, 0.15));
 }
 
 void display( void )
