@@ -30,7 +30,7 @@ mat4 model;
 
 int numVertices;
 
-vec4 lightPosition = vec4(2.0, -1.0, 1.0, 1.0);
+vec4 lightPosition = vec4(-2.0, 1.0, -1.5, 1.0);
 
 // Asteroid material
 mat3 material = mat3(
@@ -91,9 +91,10 @@ void initModels()
 	// VAO for asteroid
 	asteroidVao = new VertexArray();
 
-	Sphere m(6, true);
+	ObjFile m("models/asteroid.obj");
 	asteroidVao->AddAttribute("vPosition", m.GetVertices(), m.GetNumVertices());
 	asteroidVao->AddAttribute("vNormal", m.GetNormals(), m.GetNumVertices());
+	asteroidVao->AddIndices(m.GetIndices(), m.GetNumIndices());
 }
 
 void init()
@@ -143,7 +144,7 @@ void drawModels()
                              vec3(mv[2][0], mv[2][1], mv[2][2]));
 
 	lightShader->Bind();
-    lightShader->SetUniform("model",  model * Scale(0.2, 0.2, 0.2) * Translate(0.0, -1.0, 0.0));
+    lightShader->SetUniform("model",  model * Scale(0.1, 0.1, 0.1) * Translate(0.0, -1.0, 0.0));
     lightShader->SetUniform("view",  view);
     lightShader->SetUniform("projection", camera->GetProjection());
 	lightShader->SetUniform("normalMatrix", normalMatrix);
