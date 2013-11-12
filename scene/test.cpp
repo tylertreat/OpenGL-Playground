@@ -34,12 +34,16 @@ CameraControl* cameraControl;
 
 TextureCube* skyboxTexture;
 
-GLfloat alpha;
+GLfloat alphaAsteroid;
+GLfloat alphaPlanet;
 
 enum Axis{XAxis, YAxis, ZAxis};
 
-// degree change in each frame
-GLfloat increment = 0.2;
+// Degree change in each frame for asteroids
+GLfloat incrementAsteroid = 0.2;
+
+// Degree of change in each frame for planets
+GLfloat incrementPlanet = 0.025;
 
 // elapsed time
 int elapsedTime;
@@ -138,11 +142,6 @@ void init()
 
 //----------------------------------------------------------------------------
 
-mat4 RotateAxis(float degrees, float phi, float theta)
-{
-	return RotateY(degrees) * RotateY(phi) * RotateX(theta);
-}
-
 void drawSkybox()
 {
 	mat4 model;
@@ -167,9 +166,9 @@ void drawAsteroid(vec3 position, vec3 scale, Axis axis)
 {
 	mat4 view = camera->GetView();
 	mat4 rotation;
-	if (axis == XAxis) rotation = RotateX(alpha);
-	else if (axis == YAxis) rotation = RotateY(alpha);
-	else rotation = RotateZ(alpha);
+	if (axis == XAxis) rotation = RotateX(alphaAsteroid);
+	else if (axis == YAxis) rotation = RotateY(alphaAsteroid);
+	else rotation = RotateZ(alphaAsteroid);
 
 	mat4 model = Scale(scale) * Translate(position) * rotation;
 
@@ -198,7 +197,7 @@ void drawAsteroid(vec3 position, vec3 scale, Axis axis)
 void drawPlanet()
 {
 	mat4 view = camera->GetView();
-	mat4 rotation = RotateY(alpha);
+	mat4 rotation = RotateY(alphaPlanet) * RotateX(90);
 
 	mat4 model = rotation;
 
@@ -229,9 +228,13 @@ void drawPlanet()
 
 void drawModels()
 {
-    alpha += increment;
-    while (alpha >= 360.0) alpha -= 360.0;
-    while (alpha <= -360.0) alpha += 360.0;
+    alphaAsteroid += incrementAsteroid;
+    while (alphaAsteroid >= 360.0) alphaAsteroid -= 360.0;
+    while (alphaAsteroid <= -360.0) alphaAsteroid += 360.0;
+
+	alphaPlanet += incrementPlanet;
+    while (alphaPlanet >= 360.0) alphaPlanet -= 360.0;
+    while (alphaPlanet <= -360.0) alphaPlanet += 360.0;
 
 	drawPlanet();
 	drawAsteroid(vec3(4.5, -7.0, 15.0), vec3(0.1, 0.1, 0.1), XAxis);
