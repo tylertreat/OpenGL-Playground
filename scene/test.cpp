@@ -22,6 +22,7 @@
 VertexArray* skyboxVao;
 VertexArray* asteroidVao;
 VertexArray* planetVao;
+VertexArray* starcruiserVao;
 
 Texture2D* planetTexture;
 Texture2D* moonTexture;
@@ -67,6 +68,13 @@ mat3 material = mat3(
   vec3(0.25, 0.20, 0.15)); // specular highlights similar to diffuse color
 
 GLfloat shininess = 10.0;
+
+// Starcruiser material
+mat3 cruiserMaterial = mat3(
+  vec3(0.3, 0.3, 0.3),
+  vec3(0.8, 0.8, 0.8),
+  vec3(0.8, 0.8, 0.8));
+GLfloat cruiserShininess = 30.0;
 
 // White light
 mat3 light = mat3(
@@ -132,6 +140,13 @@ void initModels()
 	planetVao->AddAttribute("vPosition", s.GetVertices(), s.GetNumVertices());
 	planetVao->AddAttribute("vTexCoord", s.GetTexCoords(), s.GetNumVertices());
 	planetVao->AddAttribute("vNormal", s.GetNormals(), s.GetNumVertices());
+
+	// Vao for starcruiser
+	starcruiserVao = new VertexArray();
+	ObjFile starcruiser("models/starcruiser.obj");
+	starcruiserVao->AddAttribute("vPosition", starcruiser.GetVertices(), starcruiser.GetNumVertices());
+	starcruiserVao->AddAttribute("vNormal", starcruiser.GetNormals(), starcruiser.GetNumVertices());
+	starcruiserVao->AddIndices(starcruiser.GetIndices(), starcruiser.GetNumIndices());
 }
 
 void init()
@@ -264,6 +279,35 @@ void drawMoon()
     texShader->Unbind();
 }
 
+void drawStarcruiser(vec3 position, vec3 scale)
+{
+	mat4 view = camera->GetView();
+	mat4 rotation = RotateX(alphaMoon) * RotateZ(15.0);
+
+	mat4 model = Scale(scale) * Translate(position) * rotation;
+
+    mat4 mv = view * model;
+    mat3 normalMatrix = mat3(vec3(mv[0][0], mv[0][1], mv[0][2]),
+		                     vec3(mv[1][0], mv[1][1], mv[1][2]),
+                             vec3(mv[2][0], mv[2][1], mv[2][2]));
+
+	lightShader->Bind();
+    lightShader->SetUniform("model",  model);
+    lightShader->SetUniform("view",  view);
+    lightShader->SetUniform("projection", camera->GetProjection());
+	lightShader->SetUniform("normalMatrix", normalMatrix);
+	lightShader->SetUniform("lightPosition", lightPosition);
+	lightShader->SetUniform("materialProperties", cruiserMaterial);
+	lightShader->SetUniform("lightProperties", light);
+	lightShader->SetUniform("shininess", cruiserShininess);
+	lightShader->SetUniform("useHalfVector", false);
+
+    starcruiserVao->Bind(*lightShader);
+	starcruiserVao->Draw(GL_TRIANGLES);
+	starcruiserVao->Unbind();
+    lightShader->Unbind();
+}
+
 void drawModels()
 {
     alphaAsteroid += incrementAsteroid;
@@ -280,6 +324,7 @@ void drawModels()
 
 	drawPlanet();
 	drawMoon();
+	drawStarcruiser(vec3(-5.0, 0.0, 50.0), vec3(0.03, 0.03, 0.03));
 	drawAsteroid(vec3(4.5, -7.0, 15.0), vec3(0.1, 0.1, 0.1), XAxis, 0.0);
 	drawAsteroid(vec3(-15.5, 10.0, -40.0), vec3(0.05, 0.05, 0.05), ZAxis, 0.2);
 	drawAsteroid(vec3(50.0, -12.5, 11.0), vec3(0.03, 0.05, 0.03), YAxis, 0.1);
