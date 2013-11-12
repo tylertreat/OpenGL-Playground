@@ -24,6 +24,7 @@ VertexArray* asteroidVao;
 VertexArray* planetVao;
 
 Texture2D* planetTexture;
+Texture2D* moonTexture;
 
 Shader* skyboxShader;
 Shader* lightShader;
@@ -36,6 +37,7 @@ TextureCube* skyboxTexture;
 
 GLfloat alphaAsteroid;
 GLfloat alphaPlanet;
+GLfloat alphaMoon;
 
 enum Axis{XAxis, YAxis, ZAxis};
 
@@ -44,6 +46,9 @@ GLfloat incrementAsteroid = 0.2;
 
 // Degree of change in each frame for planets
 GLfloat incrementPlanet = 0.025;
+
+// Degree of change in each frame for moons
+GLfloat incrementMoon = 0.05;
 
 // elapsed time
 int elapsedTime;
@@ -81,6 +86,7 @@ void initTextures()
         "images/neg_z.tga");
 
 	planetTexture = new Texture2D("images/planet.tga");
+	moonTexture   = new Texture2D("images/moon.tga");
 }
 
 void initCamera()
@@ -162,13 +168,13 @@ void drawSkybox()
     skyboxShader->Unbind();
 }
 
-void drawAsteroid(vec3 position, vec3 scale, Axis axis)
+void drawAsteroid(vec3 position, vec3 scale, Axis axis, float rotScale)
 {
 	mat4 view = camera->GetView();
 	mat4 rotation;
-	if (axis == XAxis) rotation = RotateX(alphaAsteroid);
-	else if (axis == YAxis) rotation = RotateY(alphaAsteroid);
-	else rotation = RotateZ(alphaAsteroid);
+	if (axis == XAxis) rotation = RotateX(alphaAsteroid + rotScale);
+	else if (axis == YAxis) rotation = RotateY(alphaAsteroid + rotScale);
+	else rotation = RotateZ(alphaAsteroid + rotScale);
 
 	mat4 model = Scale(scale) * Translate(position) * rotation;
 
@@ -197,7 +203,7 @@ void drawAsteroid(vec3 position, vec3 scale, Axis axis)
 void drawPlanet()
 {
 	mat4 view = camera->GetView();
-	mat4 rotation = RotateY(alphaPlanet) * RotateX(90);
+	mat4 rotation = Scale(1.0, 1.1, 1.0) * RotateY(alphaPlanet) * RotateX(90);
 
 	mat4 model = rotation;
 
@@ -226,6 +232,38 @@ void drawPlanet()
     texShader->Unbind();
 }
 
+void drawMoon()
+{
+	mat4 view = camera->GetView();
+	mat4 rotation = RotateY(alphaMoon) * RotateX(90);
+
+	mat4 model = rotation * Translate(2.0, 0.0, -1.0) * Scale(0.3, 0.3, 0.3);
+
+    mat4 mv = view * model;
+    mat3 normalMatrix = mat3(vec3(mv[0][0], mv[0][1], mv[0][2]),
+		                     vec3(mv[1][0], mv[1][1], mv[1][2]),
+                             vec3(mv[2][0], mv[2][1], mv[2][2]));
+
+	// Bind texture to a texture unit
+    moonTexture->Bind(1);
+
+	texShader->Bind();
+	texShader->SetUniform("texture", moonTexture->GetTextureUnit());
+    texShader->SetUniform("model",  model);
+    texShader->SetUniform("view",  view);
+    texShader->SetUniform("projection", camera->GetProjection());
+	texShader->SetUniform("normalMatrix", normalMatrix);
+	texShader->SetUniform("lightPosition", lightPosition);
+	texShader->SetUniform("materialProperties", material);
+	texShader->SetUniform("lightProperties", light);
+	texShader->SetUniform("shininess", shininess);
+
+    planetVao->Bind(*texShader);
+    planetVao->Draw(GL_TRIANGLES);
+    planetVao->Unbind();
+    texShader->Unbind();
+}
+
 void drawModels()
 {
     alphaAsteroid += incrementAsteroid;
@@ -236,11 +274,16 @@ void drawModels()
     while (alphaPlanet >= 360.0) alphaPlanet -= 360.0;
     while (alphaPlanet <= -360.0) alphaPlanet += 360.0;
 
+	alphaMoon += incrementMoon;
+    while (alphaMoon >= 360.0) alphaMoon -= 360.0;
+    while (alphaMoon <= -360.0) alphaMoon += 360.0;
+
 	drawPlanet();
-	drawAsteroid(vec3(4.5, -7.0, 15.0), vec3(0.1, 0.1, 0.1), XAxis);
-	drawAsteroid(vec3(-15.5, 10.0, -40.0), vec3(0.05, 0.05, 0.05), ZAxis);
-	drawAsteroid(vec3(50.0, -12.5, 11.0), vec3(0.03, 0.05, 0.03), YAxis);
-	drawAsteroid(vec3(-5.5, 9.0, 7.5), vec3(0.15, 0.15, 0.15), ZAxis);
+	drawMoon();
+	drawAsteroid(vec3(4.5, -7.0, 15.0), vec3(0.1, 0.1, 0.1), XAxis, 0.0);
+	drawAsteroid(vec3(-15.5, 10.0, -40.0), vec3(0.05, 0.05, 0.05), ZAxis, 0.2);
+	drawAsteroid(vec3(50.0, -12.5, 11.0), vec3(0.03, 0.05, 0.03), YAxis, 0.1);
+	drawAsteroid(vec3(-5.5, 9.0, 7.5), vec3(0.15, 0.15, 0.15), ZAxis, 0.4);
 }
 
 void display( void )
