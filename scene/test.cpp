@@ -28,8 +28,10 @@ CameraControl* cameraControl;
 TextureCube* skyboxTexture;
 GLfloat alpha;
 
+enum Axis{XAxis, YAxis, ZAxis};
+
 // degree change in each frame
-GLfloat increment = 0.5;
+GLfloat increment = 0.2;
 
 // elapsed time
 int elapsedTime;
@@ -145,10 +147,15 @@ void drawSkybox()
     skyboxShader->Unbind();
 }
 
-void drawAsteroid(vec3 position, vec3 scale)
+void drawAsteroid(vec3 position, vec3 scale, Axis axis)
 {
 	mat4 view = camera->GetView();
-	mat4 model = Scale(scale) * Translate(position) * RotateAxis(alpha, 0.0, 0.0);
+	mat4 rotation;
+	if (axis == XAxis) rotation = RotateX(alpha);
+	else if (axis == YAxis) rotation = RotateY(alpha);
+	else rotation = RotateZ(alpha);
+
+	mat4 model = Scale(scale) * Translate(position) * rotation;
 
 	// We need to transform the normal vectors into eye space along with the cube.  
     // Since we aren't doing any shearing or nonuniform scaling in this case,
@@ -184,10 +191,10 @@ void drawModels()
     while (alpha >= 360.0) alpha -= 360.0;
     while (alpha <= -360.0) alpha += 360.0;
 
-	drawAsteroid(vec3(0.0, -1.0, 0.0), vec3(0.1, 0.1, 0.1));
-	drawAsteroid(vec3(-15.5, 10.0, -40.0), vec3(0.05, 0.05, 0.05));
-	drawAsteroid(vec3(50.0, -12.5, 11.0), vec3(0.03, 0.05, 0.03));
-	drawAsteroid(vec3(-5.5, 9.0, 7.5), vec3(0.15, 0.15, 0.15));
+	drawAsteroid(vec3(0.0, -1.0, 0.0), vec3(0.1, 0.1, 0.1), XAxis);
+	drawAsteroid(vec3(-15.5, 10.0, -40.0), vec3(0.05, 0.05, 0.05), ZAxis);
+	drawAsteroid(vec3(50.0, -12.5, 11.0), vec3(0.03, 0.05, 0.03), YAxis);
+	drawAsteroid(vec3(-5.5, 9.0, 7.5), vec3(0.15, 0.15, 0.15), ZAxis);
 }
 
 void display( void )
