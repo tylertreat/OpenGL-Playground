@@ -252,7 +252,7 @@ void drawMoon()
 	mat4 view = camera->GetView();
 	mat4 rotation = RotateY(alphaMoon) * RotateX(90);
 
-	mat4 model = rotation * Translate(2.0, 0.0, -1.0) * Scale(0.3, 0.3, 0.3);
+	mat4 model = rotation * Translate(2.0, -2.0, -1.0) * Scale(0.3, 0.3, 0.3);
 
     mat4 mv = view * model;
     mat3 normalMatrix = mat3(vec3(mv[0][0], mv[0][1], mv[0][2]),
