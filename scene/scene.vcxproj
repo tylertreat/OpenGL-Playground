@@ -73,10 +73,12 @@
     <ClCompile Include="..\Common\TextureCube.cpp" />
     <ClCompile Include="..\Common\VertexArray.cpp" />
     <ClCompile Include="test.cpp" />
+    <ClCompile Include="Texture2D.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="fshader_cube_tex.glsl" />
     <None Include="fshader_phong.glsl" />
+    <None Include="fshader_phong_tex.glsl" />
     <None Include="images\neg_x.tga" />
     <None Include="images\neg_y.tga" />
     <None Include="images\neg_z.tga" />

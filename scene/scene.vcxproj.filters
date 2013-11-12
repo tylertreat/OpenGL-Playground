@@ -39,6 +39,9 @@
     <ClCompile Include="..\Common\VertexArray.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Texture2D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="fshader_phong.glsl">
@@ -69,6 +72,9 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="images\pos_z.tga">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="fshader_phong_tex.glsl">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

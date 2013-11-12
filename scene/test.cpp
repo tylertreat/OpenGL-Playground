@@ -10,7 +10,6 @@
 
 #include <Angel.h>
 #include <sphere.h>
-#include <cube.h>
 #include <images.h>
 #include <Camera.h>
 #include <Shader.h>
@@ -18,14 +17,23 @@
 #include <CameraControl.h>
 #include <ObjFile.h>
 #include <TextureCube.h>
+#include <Texture2D.h>
 
 VertexArray* skyboxVao;
 VertexArray* asteroidVao;
+VertexArray* planetVao;
+
+Texture2D* planetTexture;
+
 Shader* skyboxShader;
 Shader* lightShader;
+Shader* texShader;
+
 Camera* camera;
 CameraControl* cameraControl;
+
 TextureCube* skyboxTexture;
+
 GLfloat alpha;
 
 enum Axis{XAxis, YAxis, ZAxis};
@@ -41,7 +49,7 @@ const int frameRate = 1000.0 / 60;
 
 int numVertices;
 
-vec4 lightPosition = vec4(-2.0, 1.0, -1.5, 1.0);
+vec4 lightPosition = vec4(2.0, 1.0, 1.5, 1.0);
 
 // Asteroid material
 mat3 material = mat3(
@@ -67,6 +75,8 @@ void initTextures()
         "images/neg_y.tga",
         "images/pos_z.tga",
         "images/neg_z.tga");
+
+	planetTexture = new Texture2D("images/planet.tga");
 }
 
 void initCamera()
@@ -85,14 +95,14 @@ void initShaders()
 {
 	skyboxShader = new Shader("vshader_cube_tex.glsl", "fshader_cube_tex.glsl");
 	lightShader  = new Shader("vshader_phong.glsl", "fshader_phong.glsl");
+	texShader    = new Shader("vshader_phong.glsl", "fshader_phong_tex.glsl");
 }
 
 void initSkybox()
 {
 	// VAO for skybox
 	skyboxVao = new VertexArray();
-
-	ObjFile m("../models/cube_tex.obj");   
+	ObjFile m("models/cube_tex.obj");   
     skyboxVao->AddAttribute("vPosition", m.GetVertices(), m.GetNumVertices());
     skyboxVao->AddIndices(m.GetIndices(), m.GetNumIndices());
 }
@@ -101,11 +111,17 @@ void initModels()
 {
 	// VAO for asteroid
 	asteroidVao = new VertexArray();
-
 	ObjFile m("models/asteroid.obj");
 	asteroidVao->AddAttribute("vPosition", m.GetVertices(), m.GetNumVertices());
 	asteroidVao->AddAttribute("vNormal", m.GetNormals(), m.GetNumVertices());
 	asteroidVao->AddIndices(m.GetIndices(), m.GetNumIndices());
+
+	// Vao for planet
+	planetVao = new VertexArray();
+	Sphere s(16, true);
+	planetVao->AddAttribute("vPosition", s.GetVertices(), s.GetNumVertices());
+	planetVao->AddAttribute("vTexCoord", s.GetTexCoords(), s.GetNumVertices());
+	planetVao->AddAttribute("vNormal", s.GetNormals(), s.GetNumVertices());
 }
 
 void init()
@@ -157,11 +173,6 @@ void drawAsteroid(vec3 position, vec3 scale, Axis axis)
 
 	mat4 model = Scale(scale) * Translate(position) * rotation;
 
-	// We need to transform the normal vectors into eye space along with the cube.  
-    // Since we aren't doing any shearing or nonuniform scaling in this case,
-    // we can just use the same model-view as for the cube itself 
-    // (upper-left 3x3 submatrix of the model-view matrix).  This assumes
-    // that the lighting calculation will be done in eye space.
     mat4 mv = view * model;
     mat3 normalMatrix = mat3(vec3(mv[0][0], mv[0][1], mv[0][2]),
 		                     vec3(mv[1][0], mv[1][1], mv[1][2]),
@@ -184,14 +195,46 @@ void drawAsteroid(vec3 position, vec3 scale, Axis axis)
     lightShader->Unbind();
 }
 
+void drawPlanet()
+{
+	mat4 view = camera->GetView();
+	mat4 rotation = RotateY(alpha);
+
+	mat4 model = rotation;
+
+    mat4 mv = view * model;
+    mat3 normalMatrix = mat3(vec3(mv[0][0], mv[0][1], mv[0][2]),
+		                     vec3(mv[1][0], mv[1][1], mv[1][2]),
+                             vec3(mv[2][0], mv[2][1], mv[2][2]));
+
+	// Bind texture to a texture unit
+    planetTexture->Bind(1);
+
+	texShader->Bind();
+	texShader->SetUniform("texture", planetTexture->GetTextureUnit());
+    texShader->SetUniform("model",  model);
+    texShader->SetUniform("view",  view);
+    texShader->SetUniform("projection", camera->GetProjection());
+	texShader->SetUniform("normalMatrix", normalMatrix);
+	texShader->SetUniform("lightPosition", lightPosition);
+	texShader->SetUniform("materialProperties", material);
+	texShader->SetUniform("lightProperties", light);
+	texShader->SetUniform("shininess", shininess);
+
+    planetVao->Bind(*texShader);
+    planetVao->Draw(GL_TRIANGLES);
+    planetVao->Unbind();
+    texShader->Unbind();
+}
+
 void drawModels()
 {
-    // increase the rotation angle
     alpha += increment;
     while (alpha >= 360.0) alpha -= 360.0;
     while (alpha <= -360.0) alpha += 360.0;
 
-	drawAsteroid(vec3(0.0, -1.0, 0.0), vec3(0.1, 0.1, 0.1), XAxis);
+	drawPlanet();
+	drawAsteroid(vec3(4.5, -7.0, 15.0), vec3(0.1, 0.1, 0.1), XAxis);
 	drawAsteroid(vec3(-15.5, 10.0, -40.0), vec3(0.05, 0.05, 0.05), ZAxis);
 	drawAsteroid(vec3(50.0, -12.5, 11.0), vec3(0.03, 0.05, 0.03), YAxis);
 	drawAsteroid(vec3(-5.5, 9.0, 7.5), vec3(0.15, 0.15, 0.15), ZAxis);
