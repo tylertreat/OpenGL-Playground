@@ -1,13 +1,3 @@
-//
-// Same as 'skybox' project but uses TextureCube from the rendering utilities.
-//
-// Simple demo of rendering a cube map onto the 6 inside faces of a model
-// to create a "skybox" or a projective texture.  Adapted from the OpenGL Superbible 5e (which
-// is also where the landscape images came from). No lighting.
-//
-// Camera controls are standard.
-//
-
 #include <Angel.h>
 #include <sphere.h>
 #include <images.h>

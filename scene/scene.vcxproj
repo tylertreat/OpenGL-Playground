@@ -72,7 +72,7 @@
     <ClCompile Include="..\Common\Texture.cpp" />
     <ClCompile Include="..\Common\TextureCube.cpp" />
     <ClCompile Include="..\Common\VertexArray.cpp" />
-    <ClCompile Include="test.cpp" />
+    <ClCompile Include="scene.cpp" />
     <ClCompile Include="Texture2D.cpp" />
   </ItemGroup>
   <ItemGroup>
