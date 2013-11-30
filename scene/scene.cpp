@@ -321,12 +321,49 @@ void drawModels()
 	drawAsteroid(vec3(-5.5, 9.0, 7.5), vec3(0.15, 0.15, 0.15), ZAxis, 0.4);
 }
 
+void drawScene()
+{
+	drawSkybox();
+	drawModels();
+}
+
+const int n = 5;
+int i = 0;
+bool blur;
+
+void postProcessBlur()
+{
+	if (i == 0)
+	{
+		glAccum(GL_LOAD, 1.0 / n);
+	}
+	else
+	{
+		glAccum(GL_ACCUM, 1.0 / n);
+	}
+
+	i++;
+	if (i >= n)
+	{
+		i = 0;
+        glAccum(GL_RETURN, 1.0);
+        glFlush();
+	}
+}
+
 void display( void )
 {
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-    drawSkybox();
-	drawModels();
-    glFlush();
+    drawScene();
+
+	if (blur)
+	{
+		postProcessBlur();
+	}
+	else
+	{
+        glFlush();
+	}
 }
 
 void keyboard( unsigned char key, int x, int y )
@@ -338,6 +375,8 @@ void keyboard( unsigned char key, int x, int y )
 		case 'q': case 'Q':
 			exit( EXIT_SUCCESS );
 			break; 
+		case 'b':
+			blur = !blur;
 		}
 	}
 	glutPostRedisplay();
