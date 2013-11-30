@@ -22,6 +22,7 @@ Shader* skyboxShader;
 Shader* lightShader;
 Shader* texLightShader;
 Shader* texShader;
+Shader* gaussianShader;
 
 Camera* camera;
 CameraControl* cameraControl;
@@ -113,6 +114,7 @@ void initShaders()
 	lightShader     = new Shader("vshader_phong.glsl", "fshader_phong.glsl");
 	texLightShader  = new Shader("vshader_phong.glsl", "fshader_phong_tex.glsl");
 	texShader       = new Shader("vshader_tex.glsl", "fshader_tex.glsl");
+	gaussianShader  = new Shader("vshader_tex.glsl", "fshader_gaussian.glsl");
 }
 
 void initSkybox()

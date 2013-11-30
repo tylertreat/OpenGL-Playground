@@ -77,6 +77,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="fshader_cube_tex.glsl" />
+    <None Include="fshader_gaussian.glsl" />
     <None Include="fshader_phong.glsl" />
     <None Include="fshader_phong_tex.glsl" />
     <None Include="fshader_tex.glsl" />
