@@ -96,7 +96,7 @@ void initCamera()
 		30.0f,                 // fovy
 		0.1f,                  // near
 		1000.0f);              // far
-	cameraControl = new CameraControl(camera);
+	cameraControl = new CameraControl(camera, 0.3F);
 }
 
 void initShaders()
