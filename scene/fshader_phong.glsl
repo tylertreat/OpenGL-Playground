@@ -8,7 +8,12 @@ uniform bool useHalfVector;
 in vec3 fN;
 in vec3 fL;
 in vec3 fV;
+
+in vec4 pos;
+in vec4 prevPos;
+
 out vec4 color;
+out vec2 velocity;
 
 void main() 
 { 
@@ -67,4 +72,3 @@ void main()
   color.a = 1.0;
 
 } 
-

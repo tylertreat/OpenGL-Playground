@@ -13,12 +13,14 @@ VertexArray* skyboxVao;
 VertexArray* asteroidVao;
 VertexArray* planetVao;
 VertexArray* starcruiserVao;
+VertexArray* quadVao;
 
 Texture2D* planetTexture;
 Texture2D* moonTexture;
 
 Shader* skyboxShader;
 Shader* lightShader;
+Shader* texLightShader;
 Shader* texShader;
 
 Camera* camera;
@@ -29,6 +31,10 @@ TextureCube* skyboxTexture;
 GLfloat alphaAsteroid;
 GLfloat alphaPlanet;
 GLfloat alphaMoon;
+
+GLuint fbo;
+mat4 prevMats[4][3];
+int bufferSize = 512;
 
 enum Axis{XAxis, YAxis, ZAxis};
 
@@ -46,6 +52,8 @@ int elapsedTime;
 
 // frame rate in millis for 30 frames/sec
 const int frameRate = 1000.0 / 60;
+
+vec3 asteroidTranslation;
 
 int numVertices;
 
@@ -101,9 +109,10 @@ void initCamera()
 
 void initShaders()
 {
-	skyboxShader = new Shader("vshader_cube_tex.glsl", "fshader_cube_tex.glsl");
-	lightShader  = new Shader("vshader_phong.glsl", "fshader_phong.glsl");
-	texShader    = new Shader("vshader_phong.glsl", "fshader_phong_tex.glsl");
+	skyboxShader    = new Shader("vshader_cube_tex.glsl", "fshader_cube_tex.glsl");
+	lightShader     = new Shader("vshader_phong.glsl", "fshader_phong.glsl");
+	texLightShader  = new Shader("vshader_phong.glsl", "fshader_phong_tex.glsl");
+	texShader       = new Shader("vshader_tex.glsl", "fshader_tex.glsl");
 }
 
 void initSkybox()
@@ -137,6 +146,13 @@ void initModels()
 	starcruiserVao->AddAttribute("vPosition", starcruiser.GetVertices(), starcruiser.GetNumVertices());
 	starcruiserVao->AddAttribute("vNormal", starcruiser.GetNormals(), starcruiser.GetNumVertices());
 	starcruiserVao->AddIndices(starcruiser.GetIndices(), starcruiser.GetNumIndices());
+
+	// Vao for quad
+	quadVao = new VertexArray();
+	vec2 rect[6] = { vec2(-1, 1), vec2(1, 1), vec2(1, -1), vec2(1, -1), vec2(-1, -1), vec2(-1, 1) };
+	vec2 texCoords[6] = { vec2(0, 1), vec2(1, 1), vec2(1, 0), vec2(1, 0), vec2(0, 0), vec2(0, 1) };
+	quadVao->AddAttribute("vPosition", rect, 6);
+	quadVao->AddAttribute("texCoord", texCoords, 6);
 }
 
 void init()
@@ -146,6 +162,35 @@ void init()
 	initShaders();
 	initSkybox();
 	initModels();
+
+	// Create a framebuffer object
+	glGenFramebuffers(1, &fbo);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
+  
+    // Allocate memory for a depth buffer for rendering
+    GLuint depthbuffer;
+    glGenRenderbuffers(1, &depthbuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, depthbuffer);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT32, bufferSize, bufferSize);
+
+	// Allocate texture memory
+    GLuint tex;
+    glGenTextures(1, &tex);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, bufferSize, bufferSize, 0, GL_RGBA, GL_FLOAT, NULL);
+
+	// Attach the texture and depth buffer memory to the FBO
+	glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, 0);
+    glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthbuffer);
+
+	  // Basic texture sampling parameters, implicitly using texture unit zero
+  glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+  glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+  glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+  glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );  
+
+    // Done with FBO setup
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
 	glEnable( GL_DEPTH_TEST );
     glClearColor( 1.0, 1.0, 1.0, 1.0 ); 
@@ -173,7 +218,7 @@ void drawSkybox()
     skyboxShader->Unbind();
 }
 
-void drawAsteroid(vec3 position, vec3 scale, Axis axis, float rotScale)
+void drawAsteroid(vec3 position, vec3 scale, Axis axis, float rotScale, int i)
 {
 	mat4 view = camera->GetView();
 	mat4 rotation;
@@ -182,11 +227,16 @@ void drawAsteroid(vec3 position, vec3 scale, Axis axis, float rotScale)
 	else rotation = RotateZ(alphaAsteroid + rotScale);
 
 	mat4 model = Scale(scale) * Translate(position) * rotation;
+	model = model * Translate(asteroidTranslation);
 
     mat4 mv = view * model;
     mat3 normalMatrix = mat3(vec3(mv[0][0], mv[0][1], mv[0][2]),
 		                     vec3(mv[1][0], mv[1][1], mv[1][2]),
                              vec3(mv[2][0], mv[2][1], mv[2][2]));
+
+	prevMats[i][0] = model;
+	prevMats[i][1] = view;
+	prevMats[i][2] = camera->GetProjection();
 
 	lightShader->Bind();
     lightShader->SetUniform("model",  model);
@@ -220,21 +270,21 @@ void drawPlanet()
 	// Bind texture to a texture unit
     planetTexture->Bind(1);
 
-	texShader->Bind();
-	texShader->SetUniform("texture", planetTexture->GetTextureUnit());
-    texShader->SetUniform("model",  model);
-    texShader->SetUniform("view",  view);
-    texShader->SetUniform("projection", camera->GetProjection());
-	texShader->SetUniform("normalMatrix", normalMatrix);
-	texShader->SetUniform("lightPosition", lightPosition);
-	texShader->SetUniform("materialProperties", material);
-	texShader->SetUniform("lightProperties", light);
-	texShader->SetUniform("shininess", shininess);
+	texLightShader->Bind();
+	texLightShader->SetUniform("texture", planetTexture->GetTextureUnit());
+    texLightShader->SetUniform("model",  model);
+    texLightShader->SetUniform("view",  view);
+    texLightShader->SetUniform("projection", camera->GetProjection());
+	texLightShader->SetUniform("normalMatrix", normalMatrix);
+	texLightShader->SetUniform("lightPosition", lightPosition);
+	texLightShader->SetUniform("materialProperties", material);
+	texLightShader->SetUniform("lightProperties", light);
+	texLightShader->SetUniform("shininess", shininess);
 
-    planetVao->Bind(*texShader);
+    planetVao->Bind(*texLightShader);
     planetVao->Draw(GL_TRIANGLES);
     planetVao->Unbind();
-    texShader->Unbind();
+    texLightShader->Unbind();
 }
 
 void drawMoon()
@@ -252,21 +302,21 @@ void drawMoon()
 	// Bind texture to a texture unit
     moonTexture->Bind(1);
 
-	texShader->Bind();
-	texShader->SetUniform("texture", moonTexture->GetTextureUnit());
-    texShader->SetUniform("model",  model);
-    texShader->SetUniform("view",  view);
-    texShader->SetUniform("projection", camera->GetProjection());
-	texShader->SetUniform("normalMatrix", normalMatrix);
-	texShader->SetUniform("lightPosition", lightPosition);
-	texShader->SetUniform("materialProperties", material);
-	texShader->SetUniform("lightProperties", light);
-	texShader->SetUniform("shininess", shininess);
+	texLightShader->Bind();
+	texLightShader->SetUniform("texture", moonTexture->GetTextureUnit());
+    texLightShader->SetUniform("model",  model);
+    texLightShader->SetUniform("view",  view);
+    texLightShader->SetUniform("projection", camera->GetProjection());
+	texLightShader->SetUniform("normalMatrix", normalMatrix);
+	texLightShader->SetUniform("lightPosition", lightPosition);
+	texLightShader->SetUniform("materialProperties", material);
+	texLightShader->SetUniform("lightProperties", light);
+	texLightShader->SetUniform("shininess", shininess);
 
-    planetVao->Bind(*texShader);
+    planetVao->Bind(*texLightShader);
     planetVao->Draw(GL_TRIANGLES);
     planetVao->Unbind();
-    texShader->Unbind();
+    texLightShader->Unbind();
 }
 
 void drawStarcruiser(vec3 position, vec3 scale)
@@ -315,18 +365,46 @@ void drawModels()
 	drawPlanet();
 	drawMoon();
 	drawStarcruiser(vec3(-5.0, 0.0, 50.0), vec3(0.03, 0.03, 0.03));
-	drawAsteroid(vec3(4.5, -7.0, 15.0), vec3(0.1, 0.1, 0.1), XAxis, 0.0);
-	drawAsteroid(vec3(-15.5, 10.0, -40.0), vec3(0.05, 0.05, 0.05), ZAxis, 0.2);
-	drawAsteroid(vec3(50.0, -12.5, 11.0), vec3(0.03, 0.05, 0.03), YAxis, 0.1);
-	drawAsteroid(vec3(-5.5, 9.0, 7.5), vec3(0.15, 0.15, 0.15), ZAxis, 0.4);
+	drawAsteroid(vec3(4.5, -7.0, 15.0), vec3(0.1, 0.1, 0.1), XAxis, 0.0, 0);
+	drawAsteroid(vec3(-15.5, 10.0, -40.0), vec3(0.05, 0.05, 0.05), ZAxis, 0.2, 1);
+	drawAsteroid(vec3(50.0, -12.5, 11.0), vec3(0.03, 0.05, 0.03), YAxis, 0.1, 2);
+	drawAsteroid(vec3(-5.5, 9.0, 7.5), vec3(0.15, 0.15, 0.15), ZAxis, 0.4, 3);
 }
 
 void display( void )
-{
+{  
+	// Render to the texture FBO
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
+    glClearColor( 0.5, 0.5, 0.5, 0.0 );  // transparent background 
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
+    // Set the viewport to the texture size
+    glViewport(0, 0, bufferSize, bufferSize);
+
     drawSkybox();
 	drawModels();
-    glFlush();
+
+	// Render to the default framebuffer
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    glClearColor( 1.0, 1.0, 1.0, 1.0 ); 
+    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
+    // Restore viewport to current window size
+    int width = glutGet(GLUT_WINDOW_WIDTH);
+    int height = glutGet(GLUT_WINDOW_HEIGHT);
+    glViewport(0, 0, width, height);
+
+	// Bind shader for model and set uniforms
+    texShader->Bind();
+
+    // Tell the fragment shader which texture register to use. 
+    texShader->SetUniform("tex", 0); 
+
+    // Set other uniforms and draw
+    quadVao->Bind(*texShader);
+    quadVao->Draw(GL_TRIANGLES);
+
+    glutSwapBuffers();
 }
 
 void keyboard( unsigned char key, int x, int y )
@@ -338,6 +416,12 @@ void keyboard( unsigned char key, int x, int y )
 		case 'q': case 'Q':
 			exit( EXIT_SUCCESS );
 			break; 
+		case '[':
+			asteroidTranslation = vec3(asteroidTranslation.x - 0.5, asteroidTranslation.y, asteroidTranslation.z);
+			break;
+		case ']':
+			asteroidTranslation = vec3(asteroidTranslation.x + 0.5, asteroidTranslation.y, asteroidTranslation.z);
+			break;
 		}
 	}
 	glutPostRedisplay();

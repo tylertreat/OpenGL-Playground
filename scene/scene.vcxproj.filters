@@ -77,5 +77,11 @@
     <None Include="fshader_phong_tex.glsl">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="vshader_tex.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="fshader_tex.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
