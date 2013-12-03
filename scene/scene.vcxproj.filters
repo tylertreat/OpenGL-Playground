@@ -42,6 +42,12 @@
     <ClCompile Include="scene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="FrameBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DepthTexture2D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="fshader_phong.glsl">
@@ -84,6 +90,18 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="fshader_gaussian.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="vshader_motion.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="fshader_motion.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="fshader_blur.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="vshader_blur.glsl">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

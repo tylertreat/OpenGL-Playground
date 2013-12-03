@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -18,13 +18,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -72,12 +72,16 @@
     <ClCompile Include="..\Common\Texture.cpp" />
     <ClCompile Include="..\Common\TextureCube.cpp" />
     <ClCompile Include="..\Common\VertexArray.cpp" />
+    <ClCompile Include="DepthTexture2D.cpp" />
+    <ClCompile Include="FrameBuffer.cpp" />
     <ClCompile Include="scene.cpp" />
     <ClCompile Include="Texture2D.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="fshader_blur.glsl" />
     <None Include="fshader_cube_tex.glsl" />
     <None Include="fshader_gaussian.glsl" />
+    <None Include="fshader_motion.glsl" />
     <None Include="fshader_phong.glsl" />
     <None Include="fshader_phong_tex.glsl" />
     <None Include="fshader_tex.glsl" />
@@ -87,7 +91,9 @@
     <None Include="images\pos_x.tga" />
     <None Include="images\pos_y.tga" />
     <None Include="images\pos_z.tga" />
+    <None Include="vshader_blur.glsl" />
     <None Include="vshader_cube_tex.glsl" />
+    <None Include="vshader_motion.glsl" />
     <None Include="vshader_phong.glsl" />
     <None Include="vshader_tex.glsl" />
   </ItemGroup>
