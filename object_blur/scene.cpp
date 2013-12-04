@@ -25,7 +25,7 @@ CameraControl* cameraControl;
 CTimer timer;
 
 FrameBuffer* sceneFbo;
-FrameBuffer* motionFbo;
+FrameBuffer* velocityFbo;
 
 // elapsed time
 int elapsedTime;
@@ -37,7 +37,7 @@ const int bufferSize = 512;
 
 int numVertices;
 
-vec4 lightPosition = vec4(2.0, 1.0, 1.5, 1.0);
+vec4 lightPosition = vec4(0.0, 3.0, 2.0, 1.0);
 vec4 spherePosition = vec4(0.0, 0.0, 0.0, 1.0);
 
 mat4 prevMvp;
@@ -59,7 +59,7 @@ mat3 light = mat3(
 
 void initCamera()
 {
-	camera = new Camera(vec3(0.0, 0.0, 5),   // position
+	camera = new Camera(vec3(0.0, 0.0, 15),   // position
 		vec3(0.0, 0.0, -1.0),  // forward
 		vec3(0.0, 1.0, 0.0),   // up
 		1.0f,                  // aspect
@@ -95,18 +95,19 @@ void initModels()
 
 void initFbos()
 {
-	// Creates a framebuffer object.  This will clobber texture unit 0.
-	sceneFbo = new FrameBuffer(true,        // create color texture
+	sceneFbo = new FrameBuffer(
+		true,        // create color texture
 		true,        // create depth buffer
 		bufferSize,  // width
 		bufferSize   // height
-		);
+	);
 
-	motionFbo = new FrameBuffer(true,        // create color texture
+    velocityFbo = new FrameBuffer(
+		true,        // create color texture
 		true,        // create depth buffer
 		bufferSize,  // width
 		bufferSize   // height
-		);
+	);
 }
 
 void init()
@@ -172,15 +173,14 @@ void display( void )
 	drawSphere(lightShader, true);
 	sceneFbo->Unbind();
 
-	// Render to the motion FBO
-	motionFbo->Bind();
-	glClearColor(0.0, 0.0, 0.0, 1.0);
+	// Render to the velocity FBO
+	velocityFbo->Bind();
+	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 	drawSphere(motionShader, false);
 
 	// Render to the default framebuffer (unbinding restores default)
-	motionFbo->Unbind();
+	velocityFbo->Unbind();
 	glClearColor(1.0, 1.0, 1.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -189,7 +189,7 @@ void display( void )
 	sceneTexture.Bind(1);
 
 	// Bind the velocity texture created in the FBO
-	Texture2D& velocityTexture = motionFbo->GetColorTexture();
+	Texture2D& velocityTexture = velocityFbo->GetColorTexture();
 	velocityTexture.Bind(2);
 
 	blurShader->Bind();
@@ -197,7 +197,7 @@ void display( void )
 	// Tell the fragment shader which texture register to use. 
 	blurShader->SetUniform("uTexInput", sceneTexture.GetTextureUnit());
 	blurShader->SetUniform("uTexVelocity", velocityTexture.GetTextureUnit());
-	blurShader->SetUniform("uVelocityScale", timer.GetFPS() / 30);
+	blurShader->SetUniform("uVelocityScale", timer.GetFPS() / 30.f);
 
 	// Draw
 	quadVao->Bind(*blurShader);
@@ -225,6 +225,12 @@ void keyboard( unsigned char key, int x, int y )
 			break;
 		case ']':
 			spherePosition = vec4(spherePosition.x + 0.5, spherePosition.y, spherePosition.z, spherePosition.w);
+			break;
+		case '-':
+			spherePosition = vec4(spherePosition.x, spherePosition.y - 0.5, spherePosition.z, spherePosition.w);
+			break;
+		case '=':
+			spherePosition = vec4(spherePosition.x, spherePosition.y + 0.5, spherePosition.z, spherePosition.w);
 			break;
 		}
 	}
