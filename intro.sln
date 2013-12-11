@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.20617.1 PREVIEW
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gl_example0", "gl_example0\gl_example0.vcxproj", "{325A6E9E-0895-4EDF-8834-DDED1F0E09FB}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gl_example1", "gl_example1\gl_example1.vcxproj", "{890A36A6-9DC1-41D9-8F95-402447C26DC8}"
@@ -38,6 +40,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "scene", "scene\scene.vcxproj", "{4455C0A0-3CBF-435D-9E96-668C17252139}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "texture_with_lighting", "texture_with_lighting\texture_with_lighting.vcxproj", "{FB26BD53-36EF-487F-A027-A8A1B3FE0BDD}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "object_blur", "object_blur\object_blur.vcxproj", "{D531389F-68ED-4A0E-8EEF-FF3DF8B43CD7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -177,6 +181,12 @@ Global
 		{FB26BD53-36EF-487F-A027-A8A1B3FE0BDD}.Release|Win32.ActiveCfg = Release|Win32
 		{FB26BD53-36EF-487F-A027-A8A1B3FE0BDD}.Release|Win32.Build.0 = Release|Win32
 		{FB26BD53-36EF-487F-A027-A8A1B3FE0BDD}.Release|x64.ActiveCfg = Release|Win32
+		{D531389F-68ED-4A0E-8EEF-FF3DF8B43CD7}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D531389F-68ED-4A0E-8EEF-FF3DF8B43CD7}.Debug|Win32.Build.0 = Debug|Win32
+		{D531389F-68ED-4A0E-8EEF-FF3DF8B43CD7}.Debug|x64.ActiveCfg = Debug|Win32
+		{D531389F-68ED-4A0E-8EEF-FF3DF8B43CD7}.Release|Win32.ActiveCfg = Release|Win32
+		{D531389F-68ED-4A0E-8EEF-FF3DF8B43CD7}.Release|Win32.Build.0 = Release|Win32
+		{D531389F-68ED-4A0E-8EEF-FF3DF8B43CD7}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
