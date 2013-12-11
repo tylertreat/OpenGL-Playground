@@ -33,13 +33,13 @@ GLfloat alphaMoon;
 enum Axis{XAxis, YAxis, ZAxis};
 
 // Degree change in each frame for asteroids
-GLfloat incrementAsteroid = 0.2;
+GLfloat incrementAsteroid = 0.02;
 
 // Degree of change in each frame for planets
-GLfloat incrementPlanet = 0.025;
+GLfloat incrementPlanet = 0.0025;
 
 // Degree of change in each frame for moons
-GLfloat incrementMoon = 0.05;
+GLfloat incrementMoon = 0.005;
 
 // elapsed time
 int elapsedTime;
@@ -327,7 +327,7 @@ void drawScene()
 	drawModels();
 }
 
-const int n = 5;
+const int n = 40;
 int i = 0;
 bool blur;
 
@@ -392,12 +392,7 @@ void keyboardSpecial(int key, int x, int y)
 
 void idle( void )
 {
-  int now = glutGet(GLUT_ELAPSED_TIME);
-  if (now - elapsedTime > frameRate)
-  {
-    elapsedTime = now;
-    glutPostRedisplay();
-  }
+	glutPostRedisplay();
 }
 
 int main( int argc, char **argv )
