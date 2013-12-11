@@ -18,6 +18,9 @@ Shader* lightShader;
 Shader* texShader;
 Shader* motionShader;
 Shader* blurShader;
+Shader* lightTexShader;
+
+Texture2D* sphereTexture;
 
 Camera* camera;
 CameraControl* cameraControl;
@@ -71,10 +74,11 @@ void initCamera()
 
 void initShaders()
 {
-	lightShader   = new Shader("vshader_phong.glsl", "fshader_phong.glsl");
-	texShader     = new Shader("vshader_tex.glsl", "fshader_tex.glsl");
-	motionShader  = new Shader("vshader_motion.glsl", "fshader_motion.glsl");
-	blurShader    = new Shader("vshader_blur.glsl", "fshader_blur.glsl");
+	lightShader = new Shader("C:\\Users\\ttreat\\Workspace\\OpenGL-Examples\\object_blur\\vshader_phong.glsl", "C:\\Users\\ttreat\\Workspace\\OpenGL-Examples\\object_blur\\fshader_phong.glsl");
+	texShader = new Shader("C:\\Users\\ttreat\\Workspace\\OpenGL-Examples\\object_blur\\vshader_tex.glsl", "C:\\Users\\ttreat\\Workspace\\OpenGL-Examples\\object_blur\\fshader_tex.glsl");
+	motionShader = new Shader("C:\\Users\\ttreat\\Workspace\\OpenGL-Examples\\object_blur\\vshader_motion.glsl", "C:\\Users\\ttreat\\Workspace\\OpenGL-Examples\\object_blur\\fshader_motion.glsl");
+	blurShader = new Shader("C:\\Users\\ttreat\\Workspace\\OpenGL-Examples\\object_blur\\vshader_blur.glsl", "C:\\Users\\ttreat\\Workspace\\OpenGL-Examples\\object_blur\\fshader_blur.glsl");
+	lightTexShader = new Shader("C:\\Users\\ttreat\\Workspace\\OpenGL-Examples\\object_blur\\vshader_phong.glsl", "C:\\Users\\ttreat\\Workspace\\OpenGL-Examples\\object_blur\\fshader_phong_tex.glsl");
 }
 
 void initModels()
@@ -84,6 +88,10 @@ void initModels()
 	Sphere m(16, true);
 	sphereVao->AddAttribute("vPosition", m.GetVertices(), m.GetNumVertices());
 	sphereVao->AddAttribute("vNormal", m.GetNormals(), m.GetNumVertices());
+	sphereVao->AddAttribute("vTexCoord", m.GetTexCoords(), m.GetNumVertices());
+
+	// Texture for sphere
+	sphereTexture = new Texture2D("images/planet.tga");
 
 	// VAO for quad
 	quadVao = new VertexArray();
@@ -141,6 +149,7 @@ void drawSphere(Shader* shader, bool firstPass)
 
 	if (firstPass)
 	{
+		sphereTexture->Bind(1);
 		shader->SetUniform("model", model);
 		shader->SetUniform("view", view);
 		shader->SetUniform("projection", camera->GetProjection());
@@ -150,6 +159,7 @@ void drawSphere(Shader* shader, bool firstPass)
 		shader->SetUniform("lightProperties", light);
 		shader->SetUniform("shininess", shininess);
 		shader->SetUniform("useHalfVector", false);
+		shader->SetUniform("texture", sphereTexture->GetTextureUnit());
 	}
 	else
 	{
@@ -169,8 +179,9 @@ void display( void )
 {
 	// Render to the scene FBO
 	sceneFbo->Bind();
+	glClearColor(0.3, 0.4, 0.5, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	drawSphere(lightShader, true);
+	drawSphere(lightTexShader, true);
 	sceneFbo->Unbind();
 
 	// Render to the velocity FBO
@@ -197,7 +208,7 @@ void display( void )
 	// Tell the fragment shader which texture register to use. 
 	blurShader->SetUniform("uTexInput", sceneTexture.GetTextureUnit());
 	blurShader->SetUniform("uTexVelocity", velocityTexture.GetTextureUnit());
-	blurShader->SetUniform("uVelocityScale", timer.GetFPS() / 30.f);
+	blurShader->SetUniform("uVelocityScale", 0.5f);
 
 	// Draw
 	quadVao->Bind(*blurShader);
@@ -205,10 +216,18 @@ void display( void )
 	quadVao->Unbind();
 	blurShader->Unbind();
 
+	//texShader->Bind();
+	//texShader->SetUniform("tex", velocityTexture.GetTextureUnit());
+	//quadVao->Bind(*texShader);
+	//quadVao->Draw(GL_TRIANGLES);
+	//quadVao->Unbind();
+	//texShader->Unbind();
+
 	prevMvp = currMvp;
 
 	glutSwapBuffers();
 	timer.Update();
+	std::cout << timer.GetFPS() << std::endl;
 }
 
 void keyboard( unsigned char key, int x, int y )
@@ -269,7 +288,7 @@ int main( int argc, char **argv )
   glutDisplayFunc(display);
   glutKeyboardFunc(keyboard);
   glutSpecialFunc(keyboardSpecial);
-  glutIdleFunc( idle );
+  //glutIdleFunc( idle );
 
   glutMainLoop();
   return 0;
